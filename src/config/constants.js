@@ -10,7 +10,7 @@ export const DATA_JSON_URL =
 export const CACHE_DURATION = 3600 * 1000; // 1 hour in milliseconds
 
 // Chrome Web Store URLs
-export const CHROME_WEBSTORE_BASE_URL = "https://chromewebstore.google\.com";
+export const CHROME_WEBSTORE_BASE_URL = "https://chromewebstore.google.com";
 
 // Search configuration
 export const MAX_SEARCH_RESULTS = 100;
