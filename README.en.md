@@ -2,7 +2,7 @@
 
 # Chrome Web Store Mirror
 
-A secure and fast Chrome Web Store mirror service that allows users to safely browse and download extensions and themes. Built with Cloudflare Workers, this project provides complete search, detail pages, and download functionality.
+A secure and fast Chrome Web Store mirror service that allows users to safely browse and download extensions and themes. Built with Cloudflare Workers, this repository provides complete search, detail pages, and download functionality.
 
 ## 🌐 Public Instance
 
@@ -112,7 +112,7 @@ npm run test:coverage
 
 ### Code Style
 
-The project uses ESLint and Prettier to maintain code consistency. Please run before committing code:
+The repository uses ESLint and Prettier to maintain code consistency. Please run before committing code:
 
 ```bash
 npm run lint:fix
@@ -121,7 +121,7 @@ npm run format
 
 ### Caching Strategy
 
-The project uses smart caching strategies to improve performance:
+The repository uses smart caching strategies to improve performance:
 
 - Data cached for 1 hour
 - Static resources cached long-term
@@ -129,7 +129,7 @@ The project uses smart caching strategies to improve performance:
 
 ## 🧪 Testing
 
-The project uses Vitest for testing with support for Cloudflare Workers environment.
+The repository uses Vitest for testing with support for Cloudflare Workers environment.
 
 ```bash
 # Run all tests
@@ -142,10 +142,10 @@ npm test -- --watch
 npm run test:coverage
 ```
 
-## 🔗 Related Projects
+## 🔗 Related Repositories
 
-- [Chrome Web Store Lister](https://github.com/xixu-me/Chrome-Web-Store-Lister) - Data source project providing extension and theme data
+- [Chrome Web Store Lister](https://github.com/xixu-me/Chrome-Web-Store-Lister) - Data source repository providing extension and theme data
 
 ## 📄 License
 
-This project is open source under the MIT License - see the [LICENSE](LICENSE) file for details.
+This repository is open source under the MIT License - see the [LICENSE](LICENSE) file for details.

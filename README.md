@@ -2,7 +2,7 @@
 
 # Chrome 应用商店镜像
 
-安全、快速的 Chrome 应用商店镜像服务，允许用户安全地浏览和下载扩展程序和主题。该项目使用 Cloudflare Workers 构建，提供了完整的搜索、详情页面和下载功能。
+安全、快速的 Chrome 应用商店镜像服务，允许用户安全地浏览和下载扩展程序和主题。该存储库使用 Cloudflare Workers 构建，提供了完整的搜索、详情页面和下载功能。
 
 ## 🌐 公共实例
 
@@ -112,7 +112,7 @@ npm run test:coverage
 
 ### 代码风格
 
-项目使用 ESLint 和 Prettier 保持代码一致性。请在提交代码前运行:
+存储库使用 ESLint 和 Prettier 保持代码一致性。请在提交代码前运行:
 
 ```bash
 npm run lint:fix
@@ -121,7 +121,7 @@ npm run format
 
 ### 缓存策略
 
-项目使用智能缓存策略来提高性能:
+存储库使用智能缓存策略来提高性能:
 
 - 数据缓存 1 小时
 - 静态资源长期缓存
@@ -129,7 +129,7 @@ npm run format
 
 ## 🧪 测试
 
-项目使用 Vitest 进行测试，支持 Cloudflare Workers 环境。
+存储库使用 Vitest 进行测试，支持 Cloudflare Workers 环境。
 
 ```bash
 # 运行所有测试
@@ -142,10 +142,10 @@ npm test -- --watch
 npm run test:coverage
 ```
 
-## 🔗 相关项目
+## 🔗 相关存储库
 
-- [Chrome Web Store Lister](https://github.com/xixu-me/Chrome-Web-Store-Lister) - 提供扩展程序和主题数据的数据源项目
+- [Chrome Web Store Lister](https://github.com/xixu-me/Chrome-Web-Store-Lister) - 提供扩展程序和主题数据的数据源存储库
 
 ## 📄 许可证
 
-本项目基于 MIT 许可证开源 - 查看 [LICENSE](LICENSE) 文件了解详情。
+本存储库基于 MIT 许可证开源 - 查看 [LICENSE](LICENSE) 文件了解详情。
