@@ -8,6 +8,41 @@ A secure and fast Chrome Web Store mirror service that allows users to safely br
 
 🎯 **Try it now**: <https://chromewebstore.xi-xu.me>
 
+## 📦 How to Install Extensions
+
+Extensions downloaded from this mirror service come as `.crx` files, which can be installed offline in browsers that support Chrome extensions. Here are installation methods for different browsers:
+
+### Chrome
+
+1. Open Chrome
+2. Type `chrome://extensions/` in the address bar and press Enter
+3. Enable "Developer mode" in the top right corner
+4. Drag and drop the downloaded `.crx` file onto the page, or click "Load unpacked extension"
+5. Confirm the installation
+
+### Microsoft Edge
+
+1. Open Microsoft Edge
+2. Type `edge://extensions/` in the address bar and press Enter
+3. Enable "Developer mode" in the bottom left corner
+4. Drag and drop the downloaded `.crx` file onto the page
+5. Click "Add extension" to confirm installation
+
+### Other Chromium-based Browsers
+
+Most Chromium-based browsers support similar installation methods:
+
+1. Go to the browser's extension management page
+2. Enable developer mode or allow local extension installation
+3. Drag and drop the `.crx` file onto the page or use the "Load" function
+4. Confirm the installation
+
+### 🔧 Installation Tips
+
+- **Permission Warnings**: Permission confirmation dialogs may appear during installation, which is normal
+- **Developer Mode Alerts**: Some browsers may show "Please disable extensions running in developer mode" alerts after restart, which can be ignored or patched
+- **Compatibility**: Use recent browser versions for best compatibility
+
 ## ✨ Key Features
 
 - 🔍 **Global Search** - Quickly search for extensions and themes
