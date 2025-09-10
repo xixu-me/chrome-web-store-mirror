@@ -1,7 +1,7 @@
 {
   "author": "xixu-me",
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.8.67",
+    "@cloudflare/vitest-pool-workers": "^0.8.71",
     "eslint": "^8.57.0",
     "prettier": "^3.0.0",
     "vitest": "~3.2.0",
