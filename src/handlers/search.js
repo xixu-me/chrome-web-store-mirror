@@ -21,21 +21,31 @@ export async function handleSearch(request) {
     ? decodeURIComponent(pathSegments[2])
     : "";
 
+  // Get current URL for SEO
+  const currentUrl = url.origin + url.pathname;
+
   try {
     const items = await getItems();
-    const searchPageHtml = getSearchPageTemplate(items, queryFromUrl, MAX_SEARCH_RESULTS);
+    const searchPageHtml = getSearchPageTemplate(items, queryFromUrl, MAX_SEARCH_RESULTS, currentUrl);
 
     return new Response(searchPageHtml, {
-      headers: { "Content-Type": "text/html;charset=UTF-8" },
+      headers: {
+        "Content-Type": "text/html;charset=UTF-8",
+        "X-Content-Type-Options": "nosniff",
+        "Cache-Control": "public, max-age=3600",
+      },
     });
   } catch (error) {
     console.error("Error generating search page:", error);
-    
+
     // Return a simple fallback search page
-    const fallbackHtml = getSearchPageTemplate([], queryFromUrl, MAX_SEARCH_RESULTS);
+    const fallbackHtml = getSearchPageTemplate([], queryFromUrl, MAX_SEARCH_RESULTS, currentUrl);
     return new Response(fallbackHtml, {
       status: 500,
-      headers: { "Content-Type": "text/html;charset=UTF-8" },
+      headers: {
+        "Content-Type": "text/html;charset=UTF-8",
+        "X-Content-Type-Options": "nosniff",
+      },
     });
   }
 }
