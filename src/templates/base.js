@@ -1,33 +1,56 @@
 /**
  * Base HTML template system for Chrome Web Store Mirror
- * 
+ *
  * Provides a consistent base template and utilities for generating
  * HTML pages with proper structure and styling.
  */
 
 import { getStyles } from "../assets/styles.js";
+import { generateCompleteSEO, generatePageTitle } from "../utils/seo.js";
 
 /**
- * Generates a complete HTML page with consistent structure
+ * Generates a complete HTML page with consistent structure and SEO optimization
  * @param {string} title - Page title
  * @param {string} content - Main page content (HTML)
  * @param {Object} options - Additional options
  * @param {string} options.pageType - Type of page for specific styles
  * @param {string} options.additionalCSS - Additional CSS to include
  * @param {string} options.scripts - JavaScript code to include
+ * @param {Object} options.seo - SEO configuration options
+ * @param {string} options.seo.description - Page description
+ * @param {string} options.seo.keywords - SEO keywords
+ * @param {string} options.seo.canonical - Canonical URL
+ * @param {string} options.seo.url - Current page URL
+ * @param {string} options.seo.image - Social share image
+ * @param {string} options.seo.type - Open Graph type
+ * @param {string} options.seo.robots - Robots directive
+ * @param {string} options.seo.structuredDataType - Type of structured data
+ * @param {Object} options.seo.structuredDataOptions - Structured data options
+ * @param {Array} options.seo.breadcrumbs - Breadcrumb items
  * @returns {string} Complete HTML page
  */
 export function getPageTemplate(title, content, options = {}) {
   const {
     pageType = 'base',
     additionalCSS = '',
-    scripts = ''
+    scripts = '',
+    seo = {}
   } = options;
+
+  // Generate complete page title
+  const fullTitle = generatePageTitle(title);
+
+  // Generate all SEO meta tags
+  const seoTags = generateCompleteSEO({
+    title: fullTitle,
+    ...seo
+  });
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>${title}</title>
+  <title>${fullTitle}</title>
+  ${seoTags}
   <style>
     ${getStyles(pageType)}
     ${additionalCSS}
@@ -35,11 +58,13 @@ export function getPageTemplate(title, content, options = {}) {
 </head>
 <body>
   <div class="container">
-    <div class="header">
+    <header class="header" role="banner">
       <h1>Chrome Web Store Mirror</h1>
       <p class="subtitle">Browse and download extensions and themes safely</p>
-    </div>
-    ${content}
+    </header>
+    <main id="main-content" role="main">
+      ${content}
+    </main>
   </div>
   ${scripts ? `<script>${scripts}</script>` : ''}
 </body>
