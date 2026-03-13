@@ -3,6 +3,7 @@
  */
 
 import { CACHE_DURATION, DATA_JSON_URL } from "../config/constants.js";
+import { logError } from "../utils/logger.js";
 
 // In-memory cache for the data.json file
 let itemsCache = null;
@@ -28,7 +29,7 @@ export async function getItems() {
     lastFetch = now;
     return itemsCache;
   } catch (error) {
-    console.error("Error fetching data.json:", error);
+    logError("Error fetching data.json:", error);
     // If fetch fails, return the old cache if it exists
     return itemsCache || [];
   }

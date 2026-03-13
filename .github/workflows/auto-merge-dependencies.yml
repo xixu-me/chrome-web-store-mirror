@@ -1,0 +1,114 @@
+name: Auto Merge Dependencies
+
+on:
+  pull_request_target:
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - labeled
+      - ready_for_review
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    name: Enable auto-merge for dependency PRs
+    runs-on: ubuntu-latest
+    if: >
+      github.event.pull_request.draft == false &&
+      (
+        github.event.pull_request.user.login == 'dependabot[bot]' ||
+        github.event.pull_request.user.login == 'renovate[bot]'
+      )
+
+    steps:
+      - name: Detect dependency update PR
+        id: metadata
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const pr = context.payload.pull_request;
+            const title = (pr.title || '').toLowerCase();
+            const headRef = (pr.head.ref || '').toLowerCase();
+            const labels = (pr.labels || []).map(label => (label.name || '').toLowerCase());
+
+            const isDependencyPr =
+              title.includes('bump ') ||
+              title.includes('deps') ||
+              title.includes('dependency') ||
+              headRef.startsWith('dependabot/') ||
+              headRef.startsWith('renovate/') ||
+              labels.includes('dependencies');
+
+            core.setOutput('is_dependency_pr', String(isDependencyPr));
+
+      - name: Approve dependency PR
+        if: steps.metadata.outputs.is_dependency_pr == 'true'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const prNumber = context.payload.pull_request.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            const reviews = await github.paginate(github.rest.pulls.listReviews, {
+              owner,
+              repo,
+              pull_number: prNumber,
+            });
+
+            const alreadyApproved = reviews.some(
+              review =>
+                review.user?.login === 'github-actions[bot]' &&
+                review.state === 'APPROVED'
+            );
+
+            if (alreadyApproved) {
+              core.info('PR is already approved by github-actions[bot].');
+              return;
+            }
+
+            await github.rest.pulls.createReview({
+              owner,
+              repo,
+              pull_number: prNumber,
+              event: 'APPROVE',
+              body: 'Auto-approving dependency update PR so GitHub auto-merge can complete after required checks pass.',
+            });
+
+      - name: Enable auto-merge
+        if: steps.metadata.outputs.is_dependency_pr == 'true'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const pullRequestId = context.payload.pull_request.node_id;
+
+            try {
+              await github.graphql(
+                `
+                  mutation EnableAutoMerge($pullRequestId: ID!) {
+                    enablePullRequestAutoMerge(input: { pullRequestId: $pullRequestId, mergeMethod: SQUASH }) {
+                      pullRequest {
+                        number
+                        autoMergeRequest {
+                          enabledAt
+                        }
+                      }
+                    }
+                  }
+                `,
+                { pullRequestId }
+              );
+              core.info('Auto-merge enabled.');
+            } catch (error) {
+              if (error.message.includes('Pull request is in clean status')) {
+                core.info('Auto-merge is already enabled.');
+                return;
+              }
+
+              throw error;
+            }

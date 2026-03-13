@@ -18,7 +18,7 @@ export default {
    * @param {Object} ctx - Execution context
    * @returns {Promise<Response>} - Response to the request
    */
-  async fetch(request, env, ctx) {
+  async fetch(request, _env, _ctx) {
     return handleRequest(request);
   },
 };

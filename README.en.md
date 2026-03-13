@@ -108,22 +108,20 @@ npm run test:coverage
 
 ## 🌐 Deployment
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/xixu-me/Chrome-Web-Store-Mirror)
+This repository includes a complete GitHub Actions setup:
 
-### Deploy to Cloudflare Workers
+- `CI`: runs `npm ci`, `eslint`, `vitest`, and `wrangler deploy --dry-run` on `pull_request` and pushes to `main`
+- `Deploy`: automatically deploys to Cloudflare Workers on pushes to `main` or when triggered manually
+- `CodeQL`: runs static security analysis on PRs, pushes to `main`, and on a weekly schedule
+- `Dependency Review`: reviews dependency changes in pull requests and posts a summary comment
+- `Auto Merge Dependencies`: automatically approves dependency update PRs opened by `dependabot[bot]` and `renovate[bot]`, then enables GitHub auto-merge so they merge after required checks pass
 
-1. Log in to your Cloudflare account and get an API Token
-2. Configure Wrangler:
+### Required GitHub Secrets
 
-    ```bash
-    npx wrangler login
-    ```
+Add the following secrets in `Settings > Secrets and variables > Actions`:
 
-3. Deploy the application:
-
-    ```bash
-    npx wrangler deploy
-    ```
+- `CLOUDFLARE_API_TOKEN`: a Cloudflare API token with Workers deployment permissions
+- `CLOUDFLARE_ACCOUNT_ID`: your Cloudflare account ID
 
 ## 📚 API Reference
 

@@ -108,22 +108,20 @@ npm run test:coverage
 
 ## 🌐 部署
 
-[![Deploy to Cloudflare Workers](https://deploy.workers.cloudflare.com/button)](https://deploy.workers.cloudflare.com/?url=https://github.com/xixu-me/Chrome-Web-Store-Mirror)
+本存储库已配置完整的 GitHub Actions 工作流：
 
-### 部署到 Cloudflare Workers
+- `CI`：在 `pull_request` 和推送到 `main` 时执行 `npm ci`、`eslint`、`vitest` 和 `wrangler deploy --dry-run`
+- `Deploy`：在推送到 `main` 或手动触发时自动部署到 Cloudflare Workers
+- `CodeQL`：在 PR、`main` 推送和每周定时任务中执行静态安全扫描
+- `Dependency Review`：在 PR 中检查新增或升级依赖的风险，并自动回帖摘要
+- `Auto Merge Dependencies`：对 `dependabot[bot]` 和 `renovate[bot]` 创建的依赖升级 PR 自动批准并开启 auto-merge，等待必需检查通过后自动合并
 
-1. 登录 Cloudflare 账户并获取 API Token
-2. 配置 Wrangler:
+### 需要配置的 GitHub Secrets
 
-    ```bash
-    npx wrangler login
-    ```
+在 GitHub 存储库的 `Settings > Secrets and variables > Actions` 中添加：
 
-3. 部署应用:
-
-    ```bash
-    npx wrangler deploy
-    ```
+- `CLOUDFLARE_API_TOKEN`：具有 Workers 部署权限的 Cloudflare API Token
+- `CLOUDFLARE_ACCOUNT_ID`：Cloudflare 账户 ID
 
 ## 📚 API 参考
 

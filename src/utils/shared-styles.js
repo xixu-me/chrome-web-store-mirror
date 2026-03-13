@@ -9,12 +9,13 @@
 
 import { baseStyles } from "../assets/styles.js";
 import { getPageTemplate as getBasePageTemplate } from "../templates/base.js";
+import { logWarn } from "./logger.js";
 
 /**
  * @deprecated Use getStyles() from ../assets/styles.js instead
  */
 export const getSharedCSS = () => {
-  console.warn("getSharedCSS is deprecated. Use getStyles() from ../assets/styles.js instead.");
+  logWarn("getSharedCSS is deprecated. Use getStyles() from ../assets/styles.js instead.");
   return baseStyles;
 };
 
@@ -22,6 +23,6 @@ export const getSharedCSS = () => {
  * @deprecated Use getPageTemplate() from ../templates/base.js instead
  */
 export const getPageTemplate = (title, content) => {
-  console.warn("getPageTemplate from shared-styles.js is deprecated. Use getPageTemplate() from ../templates/base.js instead.");
+  logWarn("getPageTemplate from shared-styles.js is deprecated. Use getPageTemplate() from ../templates/base.js instead.");
   return getBasePageTemplate(title, content);
 };
