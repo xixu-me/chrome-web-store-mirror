@@ -5,7 +5,7 @@
  */
 
 import { getItems } from "../services/cache.js";
-import { getDefaultSEOConfig } from "../utils/seo.js";
+import { logError, logInfo } from "../utils/logger.js";
 
 /**
  * Escapes XML special characters
@@ -52,7 +52,6 @@ function generateUrlEntry(loc, lastmod = '', changefreq = 'weekly', priority = '
 export async function handleSitemap(request) {
   const url = new URL(request.url);
   const baseUrl = url.origin;
-  const seoConfig = getDefaultSEOConfig();
 
   try {
     // Get current date in ISO format for lastmod
@@ -82,10 +81,10 @@ export async function handleSitemap(request) {
 
       // If there are more extensions than we included, add a note in comments
       if (items.length > maxExtensions) {
-        console.log(`Sitemap includes ${maxExtensions} of ${items.length} total extensions`);
+        logInfo(`Sitemap includes ${maxExtensions} of ${items.length} total extensions`);
       }
     } catch (error) {
-      console.error('Error fetching items for sitemap:', error);
+      logError('Error fetching items for sitemap:', error);
       // Continue with just the main pages if items fetch fails
     }
 
@@ -106,7 +105,7 @@ ${urlEntries}
       },
     });
   } catch (error) {
-    console.error('Error generating sitemap:', error);
+    logError('Error generating sitemap:', error);
 
     // Return a minimal sitemap with just the main pages if generation fails
     const fallbackSitemap = `<?xml version="1.0" encoding="UTF-8"?>

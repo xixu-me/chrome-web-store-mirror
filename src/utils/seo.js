@@ -32,7 +32,6 @@ const DEFAULT_SEO_CONFIG = {
  */
 export function generateMetaTags(options = {}) {
   const {
-    title = DEFAULT_SEO_CONFIG.defaultTitle,
     description = DEFAULT_SEO_CONFIG.defaultDescription,
     keywords = DEFAULT_SEO_CONFIG.defaultKeywords,
     robots = 'index, follow',

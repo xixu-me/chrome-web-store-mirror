@@ -4,8 +4,6 @@
  * Provides robots.txt file to guide search engine crawlers
  */
 
-import { getDefaultSEOConfig } from "../utils/seo.js";
-
 /**
  * Handles requests for robots.txt
  * @param {Request} request - The incoming request
@@ -13,7 +11,6 @@ import { getDefaultSEOConfig } from "../utils/seo.js";
  */
 export function handleRobots(request) {
   const url = new URL(request.url);
-  const seoConfig = getDefaultSEOConfig();
   const sitemapUrl = `${url.origin}/sitemap.xml`;
 
   const robotsTxt = `# Robots.txt for Chrome Web Store Mirror

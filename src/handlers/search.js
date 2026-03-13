@@ -8,6 +8,7 @@
 import { MAX_SEARCH_RESULTS } from "../config/constants.js";
 import { getItems } from "../services/cache.js";
 import { getSearchPageTemplate } from "../templates/search.js";
+import { logError } from "../utils/logger.js";
 
 /**
  * Handles requests for the search page
@@ -36,7 +37,7 @@ export async function handleSearch(request) {
       },
     });
   } catch (error) {
-    console.error("Error generating search page:", error);
+    logError("Error generating search page:", error);
 
     // Return a simple fallback search page
     const fallbackHtml = getSearchPageTemplate([], queryFromUrl, MAX_SEARCH_RESULTS, currentUrl);
