@@ -86,12 +86,23 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const pullRequestId = context.payload.pull_request.node_id;
+            const { data: repository } = await github.rest.repos.get(context.repo);
+            const mergeMethod =
+              repository.allow_merge_commit ? 'MERGE' :
+              repository.allow_rebase_merge ? 'REBASE' :
+              repository.allow_squash_merge ? 'SQUASH' :
+              null;
+
+            if (!mergeMethod) {
+              core.info('No auto-merge method is enabled for this repository.');
+              return;
+            }
 
             try {
               await github.graphql(
                 `
-                  mutation EnableAutoMerge($pullRequestId: ID!) {
-                    enablePullRequestAutoMerge(input: { pullRequestId: $pullRequestId, mergeMethod: SQUASH }) {
+                  mutation EnableAutoMerge($pullRequestId: ID!, $mergeMethod: PullRequestMergeMethod!) {
+                    enablePullRequestAutoMerge(input: { pullRequestId: $pullRequestId, mergeMethod: $mergeMethod }) {
                       pullRequest {
                         number
                         autoMergeRequest {
@@ -101,12 +112,15 @@ jobs:
                     }
                   }
                 `,
-                { pullRequestId }
+                { pullRequestId, mergeMethod }
               );
               core.info('Auto-merge enabled.');
             } catch (error) {
-              if (error.message.includes('Pull request is in clean status')) {
-                core.info('Auto-merge is already enabled.');
+              if (
+                error.message.includes('Pull request is in clean status') ||
+                error.message.includes('unstable status')
+              ) {
+                core.info('Auto-merge cannot be enabled yet; the PR is not mergeable yet.');
                 return;
               }
 
