@@ -2,7 +2,8 @@
  * Detail page handler
  */
 
-import { getItems } from "../services/cache.js";
+import { CHROME_WEBSTORE_BASE_URL } from "../config/constants.js";
+import { isValidExtensionId } from "../utils/extension.js";
 import { proxyRequest } from "../utils/proxy.js";
 import { handle404 } from "./error.js";
 
@@ -13,13 +14,16 @@ import { handle404 } from "./error.js";
  */
 export async function handleDetail(request) {
   const url = new URL(request.url);
-  const itemId = url.pathname.split("/")[2];
-  const items = await getItems();
-  const item = items.find((i) => i.id === itemId);
+  const pathSegments = url.pathname.split("/").filter(Boolean);
+  const itemId = pathSegments[pathSegments.length - 1];
 
-  if (!item) {
+  if (!isValidExtensionId(itemId)) {
     return handle404(request);
   }
 
-  return proxyRequest(request, item.page, itemId);
+  return proxyRequest(
+    request,
+    `${CHROME_WEBSTORE_BASE_URL}${url.pathname}${url.search}`,
+    itemId,
+  );
 }

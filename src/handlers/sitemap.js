@@ -4,8 +4,7 @@
  * Generates dynamic XML sitemap for search engine crawlers
  */
 
-import { getItems } from "../services/cache.js";
-import { logError, logInfo } from "../utils/logger.js";
+import { logError } from "../utils/logger.js";
 
 /**
  * Escapes XML special characters
@@ -13,14 +12,14 @@ import { logError, logInfo } from "../utils/logger.js";
  * @returns {string} Escaped text
  */
 function escapeXml(text) {
-  if (!text) return '';
+  if (!text) return "";
 
   const map = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&apos;'
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&apos;",
   };
 
   return text.toString().replace(/[&<>"']/g, (char) => map[char]);
@@ -34,11 +33,16 @@ function escapeXml(text) {
  * @param {string} priority - Priority (0.0 to 1.0)
  * @returns {string} XML URL entry
  */
-function generateUrlEntry(loc, lastmod = '', changefreq = 'weekly', priority = '0.5') {
+function generateUrlEntry(
+  loc,
+  lastmod = "",
+  changefreq = "weekly",
+  priority = "0.5",
+) {
   return `
   <url>
     <loc>${escapeXml(loc)}</loc>
-    ${lastmod ? `<lastmod>${lastmod}</lastmod>` : ''}
+    ${lastmod ? `<lastmod>${lastmod}</lastmod>` : ""}
     <changefreq>${changefreq}</changefreq>
     <priority>${priority}</priority>
   </url>`;
@@ -55,38 +59,18 @@ export async function handleSitemap(request) {
 
   try {
     // Get current date in ISO format for lastmod
-    const currentDate = new Date().toISOString().split('T')[0];
+    const currentDate = new Date().toISOString().split("T")[0];
 
-    let urlEntries = '';
+    let urlEntries = "";
 
     // Add main pages
-    urlEntries += generateUrlEntry(baseUrl, currentDate, 'daily', '1.0');
-    urlEntries += generateUrlEntry(`${baseUrl}/search`, currentDate, 'daily', '1.0');
-
-    // Get all extensions from cache
-    try {
-      const items = await getItems();
-
-      // Add extension detail pages (limit to prevent sitemap from being too large)
-      // For large catalogs, consider using a sitemap index instead
-      const maxExtensions = 5000; // Sitemap limit is 50,000 URLs
-      const extensionsToInclude = items.slice(0, maxExtensions);
-
-      for (const item of extensionsToInclude) {
-        if (item.itemId) {
-          const detailUrl = `${baseUrl}/detail/${item.itemId}`;
-          urlEntries += generateUrlEntry(detailUrl, currentDate, 'weekly', '0.8');
-        }
-      }
-
-      // If there are more extensions than we included, add a note in comments
-      if (items.length > maxExtensions) {
-        logInfo(`Sitemap includes ${maxExtensions} of ${items.length} total extensions`);
-      }
-    } catch (error) {
-      logError('Error fetching items for sitemap:', error);
-      // Continue with just the main pages if items fetch fails
-    }
+    urlEntries += generateUrlEntry(baseUrl, currentDate, "daily", "1.0");
+    urlEntries += generateUrlEntry(
+      `${baseUrl}/search`,
+      currentDate,
+      "daily",
+      "1.0",
+    );
 
     // Generate complete sitemap XML
     const sitemapXml = `<?xml version="1.0" encoding="UTF-8"?>
@@ -105,7 +89,7 @@ ${urlEntries}
       },
     });
   } catch (error) {
-    logError('Error generating sitemap:', error);
+    logError("Error generating sitemap:", error);
 
     // Return a minimal sitemap with just the main pages if generation fails
     const fallbackSitemap = `<?xml version="1.0" encoding="UTF-8"?>

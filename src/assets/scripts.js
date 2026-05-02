@@ -1,71 +1,148 @@
 /**
  * Client-side JavaScript utilities for Chrome Web Store Mirror
- * 
+ *
  * This module contains all client-side JavaScript functionality,
  * providing interactive features for the mirror application.
  */
 
 /**
  * Search functionality for the search page
- * @param {Array} items - Array of extension items to search through
+ * @param {string} dataUrl - URL for the item catalog JSON
  * @param {string} initialQuery - Initial search query from URL
  * @param {number} maxResults - Maximum number of results to display
  * @returns {string} JavaScript code for search functionality
  */
-export function getSearchScript(items, initialQuery = '', maxResults = 100) {
+export function getSearchScript(
+  dataUrl = "/data.json",
+  initialQuery = "",
+  maxResults = 100,
+) {
   return `
-    const items = ${JSON.stringify(items)};
+    const dataUrl = ${JSON.stringify(dataUrl)};
     const searchInput = document.getElementById('search-input');
     const resultsDiv = document.getElementById('results');
+    let itemsPromise;
     
     // Get initial query from URL
-    const initialQuery = '${initialQuery}';
+    const initialQuery = ${JSON.stringify(initialQuery)};
     if (initialQuery) {
       searchInput.value = initialQuery;
       performSearch(initialQuery);
+    }
+
+    function loadItems() {
+      if (!itemsPromise) {
+        itemsPromise = fetch(dataUrl)
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error('Failed to load extension catalog');
+            }
+            return response.json();
+          });
+      }
+      return itemsPromise;
+    }
+
+    function clearResults() {
+      resultsDiv.replaceChildren();
+    }
+
+    function setStatus(className, icon, message) {
+      clearResults();
+      const status = document.createElement('div');
+      status.className = className;
+
+      if (icon) {
+        const iconElement = document.createElement('div');
+        iconElement.className = className + '-icon';
+        iconElement.textContent = icon;
+        status.appendChild(iconElement);
+      }
+
+      const text = document.createElement('p');
+      text.textContent = message;
+      status.appendChild(text);
+      resultsDiv.appendChild(status);
+    }
+
+    function setLoading() {
+      clearResults();
+      const loading = document.createElement('div');
+      loading.className = 'loading';
+      const spinner = document.createElement('div');
+      spinner.className = 'loading-spinner';
+      loading.appendChild(spinner);
+      loading.appendChild(document.createTextNode('Searching...'));
+      resultsDiv.appendChild(loading);
+    }
+
+    function createResultItem(item, index) {
+      const id = typeof item.id === 'string' ? item.id : '';
+      const name = typeof item.name === 'string' ? item.name : id;
+      const detailPath = '/detail/' + encodeURIComponent(id);
+
+      const itemElement = document.createElement('div');
+      itemElement.className = 'item';
+      itemElement.style.setProperty('--index', index);
+      itemElement.addEventListener('click', () => {
+        window.open(detailPath, '_blank');
+      });
+
+      const link = document.createElement('a');
+      link.href = detailPath;
+      link.target = '_blank';
+      link.rel = 'noopener noreferrer';
+      link.textContent = name;
+      link.addEventListener('click', (event) => event.stopPropagation());
+
+      const idElement = document.createElement('div');
+      idElement.className = 'id';
+      idElement.textContent = id;
+
+      itemElement.append(link, idElement);
+      return itemElement;
     }
 
     /**
      * Performs search and updates the results display
      * @param {string} query - Search query
      */
-    function performSearch(query) {
+    async function performSearch(query) {
       const lowerQuery = query.toLowerCase();
       if (lowerQuery.length < 1) {
-        resultsDiv.innerHTML = '';
+        clearResults();
         return;
       }
 
       // Show loading state
-      resultsDiv.innerHTML = '<div class="loading"><div class="loading-spinner"></div>Searching...</div>';
+      setLoading();
       
       // Simulate brief delay for better UX
-      setTimeout(() => {
-        const filteredItems = items.filter(item => 
-          item.name.toLowerCase().includes(lowerQuery) || 
-          item.id.toLowerCase() === lowerQuery
-        );
-        
-        if (filteredItems.length === 0) {
-          resultsDiv.innerHTML = \`
-            <div class="empty-state">
-              <div class="empty-state-icon">📦</div>
-              <p>No extensions or themes found matching "\${query}"</p>
-            </div>
-          \`;
+      setTimeout(async () => {
+        let items;
+        try {
+          items = await loadItems();
+        } catch (error) {
+          setStatus('empty-state', '!', 'Unable to load the extension catalog. Please try again later.');
           return;
         }
 
-        let html = '';
+        const filteredItems = items.filter(item => 
+          (typeof item.name === 'string' && item.name.toLowerCase().includes(lowerQuery)) ||
+          (typeof item.id === 'string' && item.id.toLowerCase() === lowerQuery)
+        );
+        
+        if (filteredItems.length === 0) {
+          setStatus('empty-state', '📦', \`No extensions or themes found matching "\${query}"\`);
+          return;
+        }
+
+        clearResults();
+        const fragment = document.createDocumentFragment();
         filteredItems.slice(0, ${maxResults}).forEach((item, index) => {
-          html += \`
-            <div class="item" style="--index: \${index}" onclick="window.open('/detail/\${item.id}', '_blank')">
-              <a href="/detail/\${item.id}" target="_blank">\${item.name}</a>
-              <div class="id">\${item.id}</div>
-            </div>
-          \`;
+          fragment.appendChild(createResultItem(item, index));
         });
-        resultsDiv.innerHTML = html;
+        resultsDiv.appendChild(fragment);
         
         // Trigger animation
         resultsDiv.style.opacity = '0';
@@ -80,7 +157,6 @@ export function getSearchScript(items, initialQuery = '', maxResults = 100) {
       const query = searchInput.value;
       
       // Update URL without page reload
-      const currentPath = window.location.pathname;
       let newUrl;
       
       if (query) {

@@ -4,6 +4,7 @@
 
 import { CHROME_WEBSTORE_BASE_URL } from "./config/constants.js";
 import { handleCrx } from "./handlers/crx.js";
+import { handleData } from "./handlers/data.js";
 import { handleDetail } from "./handlers/detail.js";
 import { handle404 } from "./handlers/error.js";
 import { handleRobots } from "./handlers/robots.js";
@@ -33,6 +34,10 @@ export async function handleRequest(request) {
     return handleSitemap(request);
   }
 
+  if (url.pathname === "/data.json") {
+    return handleData();
+  }
+
   if (url.pathname.startsWith("/detail/")) {
     return handleDetail(request);
   }
@@ -49,7 +54,7 @@ export async function handleRequest(request) {
   try {
     const proxyResponse = await proxyRequest(
       request,
-      `${CHROME_WEBSTORE_BASE_URL}${url.pathname}${url.search}`
+      `${CHROME_WEBSTORE_BASE_URL}${url.pathname}${url.search}`,
     );
 
     // If proxy request returns 404 or fails, show our 404 page
