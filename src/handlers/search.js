@@ -1,12 +1,11 @@
 /**
  * Search page handler for Chrome Web Store Mirror
- * 
+ *
  * Handles requests for the search functionality, allowing users to
  * search through available extensions and themes.
  */
 
 import { MAX_SEARCH_RESULTS } from "../config/constants.js";
-import { getItems } from "../services/cache.js";
 import { getSearchPageTemplate } from "../templates/search.js";
 import { logError } from "../utils/logger.js";
 
@@ -26,8 +25,11 @@ export async function handleSearch(request) {
   const currentUrl = url.origin + url.pathname;
 
   try {
-    const items = await getItems();
-    const searchPageHtml = getSearchPageTemplate(items, queryFromUrl, MAX_SEARCH_RESULTS, currentUrl);
+    const searchPageHtml = getSearchPageTemplate(
+      queryFromUrl,
+      MAX_SEARCH_RESULTS,
+      currentUrl,
+    );
 
     return new Response(searchPageHtml, {
       headers: {
@@ -40,7 +42,11 @@ export async function handleSearch(request) {
     logError("Error generating search page:", error);
 
     // Return a simple fallback search page
-    const fallbackHtml = getSearchPageTemplate([], queryFromUrl, MAX_SEARCH_RESULTS, currentUrl);
+    const fallbackHtml = getSearchPageTemplate(
+      queryFromUrl,
+      MAX_SEARCH_RESULTS,
+      currentUrl,
+    );
     return new Response(fallbackHtml, {
       status: 500,
       headers: {
