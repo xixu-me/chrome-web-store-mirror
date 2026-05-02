@@ -121,6 +121,7 @@ function injectDownloadButtonScript(html, itemId, origin) {
         return;
       }
 
+      const buttonStyle = getComputedStyle(button);
       const link = document.createElement("a");
       link.href = downloadUrl;
       link.className = button.className;
@@ -128,6 +129,15 @@ function injectDownloadButtonScript(html, itemId, origin) {
       link.setAttribute("role", "button");
       link.setAttribute("aria-label", downloadText);
       link.setAttribute("data-mirror-download-button", "true");
+      [
+        "fontFamily",
+        "fontSize",
+        "fontWeight",
+        "lineHeight",
+        "letterSpacing",
+      ].forEach((property) => {
+        link.style[property] = buttonStyle[property];
+      });
       link.style.color = "white";
       link.style.setProperty("color", "white", "important");
       link.style.textDecoration = "none";

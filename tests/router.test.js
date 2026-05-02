@@ -61,6 +61,12 @@ describe("Router", () => {
     expect(body).toContain("Add to Chrome");
     expect(body).toContain("Download CRX");
     expect(body).toContain('link.style.color = "white"');
+    expect(body).toContain("const buttonStyle = getComputedStyle(button)");
+    expect(body).toContain("fontFamily");
+    expect(body).toContain("fontSize");
+    expect(body).toContain("fontWeight");
+    expect(body).toContain("lineHeight");
+    expect(body).toContain("letterSpacing");
     expect(body).toContain(
       "https://example.com/crx/abcdefghijklmnopabcdefghijklmnop",
     );
