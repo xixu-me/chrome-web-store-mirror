@@ -60,6 +60,7 @@ describe("Router", () => {
     expect(body).toContain("mirror-download-button-script");
     expect(body).toContain("Add to Chrome");
     expect(body).toContain("Download CRX");
+    expect(body).toContain('link.style.color = "white"');
     expect(body).toContain(
       "https://example.com/crx/abcdefghijklmnopabcdefghijklmnop",
     );
