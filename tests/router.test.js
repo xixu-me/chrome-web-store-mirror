@@ -59,6 +59,7 @@ describe("Router", () => {
     expect(body).not.toContain("mirror-banner");
     expect(body).toContain("mirror-header-action-style");
     expect(body).toContain("mirror-header-action-removal-script");
+    expect(body).toContain('header[role="banner"] [role="search"]');
     expect(body).toContain('header[role="banner"] .keVMg');
     expect(body).toContain('header[role="banner"] .BW8iFc');
     expect(body).toContain("mirror-download-button-script");
