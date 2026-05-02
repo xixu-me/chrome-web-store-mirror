@@ -1,185 +1,185 @@
-**_[English](README.en.md)_**
+**_[汉语](README.zh.md)_**
 
-# Chrome 应用商店镜像
+# Chrome Web Store Mirror
 
-安全、快速的 Chrome 应用商店镜像服务，允许用户安全地浏览和下载扩展程序和主题。该存储库使用 Cloudflare Workers 构建，提供了完整的搜索、详情页面和下载功能。
+A secure and fast Chrome Web Store mirror service that allows users to safely browse and download extensions and themes. Built with Cloudflare Workers, this repository provides complete search, detail pages, and download functionality.
 
-## 🌐 公共实例
+## 🌐 Public Instance
 
-🎯 **立即体验**：<https://chromewebstore.xi-xu.me>
+🎯 **Try it now**: <https://chromewebstore.xi-xu.me>
 
-## 📦 如何安装扩展程序
+## 📦 How to Install Extensions
 
-通过本镜像服务下载的扩展程序为 CRX 文件，可以在支持 Chrome 扩展的浏览器中离线安装。下面是不同浏览器的安装方法：
+Extensions downloaded from this mirror service come as CRX files, which can be installed offline in browsers that support Chrome extensions. Here are installation methods for different browsers:
 
 ### Chrome
 
-1. 打开 Chrome
-2. 在地址栏输入 `chrome://extensions/` 并回车
-3. 开启右上角的“开发者模式”
-4. 将下载的 CRX 文件拖拽到页面中，或点击“加载已解压的扩展程序”
-5. 确认安装即可
+1. Open Chrome
+2. Type `chrome://extensions/` in the address bar and press Enter
+3. Enable "Developer mode" in the top right corner
+4. Drag and drop the downloaded CRX file onto the page, or click "Load unpacked extension"
+5. Confirm the installation
 
 ### Microsoft Edge
 
-1. 打开 Microsoft Edge
-2. 在地址栏输入 `edge://extensions/` 并回车
-3. 开启左下角的“开发人员模式”
-4. 将下载的 CRX 文件拖拽到页面中
-5. 点击“添加扩展”确认安装
+1. Open Microsoft Edge
+2. Type `edge://extensions/` in the address bar and press Enter
+3. Enable "Developer mode" in the bottom left corner
+4. Drag and drop the downloaded CRX file onto the page
+5. Click "Add extension" to confirm installation
 
-### 其它基于 Chromium 的浏览器
+### Other Chromium-based Browsers
 
-大多数基于 Chromium 的浏览器（如 360 浏览器、QQ 浏览器、搜狗浏览器等）都支持类似的安装方式：
+Most Chromium-based browsers support similar installation methods:
 
-1. 进入浏览器的扩展管理页面
-2. 开启开发者模式或允许安装本地扩展
-3. 拖拽 CRX 文件到页面中或使用“加载”功能
-4. 确认安装
+1. Go to the browser's extension management page
+2. Enable developer mode or allow local extension installation
+3. Drag and drop the CRX file onto the page or use the "Load" function
+4. Confirm the installation
 
-### 🔧 安装提示
+### 🔧 Installation Tips
 
-- **权限警告**：安装时可能会弹出权限确认，这是正常现象
-- **开发者模式提示**：部分浏览器可能在重启后提示“请停用以开发者模式运行的扩展程序”，可以选择忽略或查找相关补丁
-- **兼容性**：建议使用较新版本的浏览器以确保最佳兼容性
+- **Permission Warnings**: Permission confirmation dialogs may appear during installation, which is normal
+- **Developer Mode Alerts**: Some browsers may show "Please disable extensions running in developer mode" alerts after restart, which can be ignored or patched
+- **Compatibility**: Use recent browser versions for best compatibility
 
-## ✨ 主要功能
+## ✨ Key Features
 
-- 🔍 **全局搜索** - 快速搜索扩展程序和主题
-- 📄 **详情页面** - 查看扩展程序和主题的详细信息
-- 📦 **CRX 下载** - 安全下载扩展程序和主题的 CRX 文件
-- ⚡ **缓存优化** - 智能缓存机制提升访问速度
-- 🌍 **全球可用** - 基于 Cloudflare 全球网络
+- 🔍 **Global Search** - Quickly search for extensions and themes
+- 📄 **Detail Pages** - View detailed information about extensions and themes
+- 📦 **CRX Downloads** - Safely download CRX files of extensions and themes
+- ⚡ **Cache Optimization** - Smart caching mechanism for improved access speed
+- 🌍 **Global Availability** - Built on Cloudflare's global network
 
-## 🏗️ 技术架构
+## 🏗️ Technical Architecture
 
-- **运行环境**: Cloudflare Workers
-- **开发语言**: JavaScript (ES6+ 模块)
-- **构建工具**: Wrangler
-- **测试框架**: Vitest
-- **代码规范**: ESLint + Prettier
-- **数据源**: [Chrome Web Store Lister](https://github.com/xixu-me/Chrome-Web-Store-Lister)
+- **Runtime**: Cloudflare Workers
+- **Language**: JavaScript (ES6+ modules)
+- **Build Tool**: Wrangler
+- **Testing Framework**: Vitest
+- **Code Standards**: ESLint + Prettier
+- **Data Source**: [Chrome Web Store Lister](https://github.com/xixu-me/Chrome-Web-Store-Lister)
 
-## 🚀 快速开始
+## 🚀 Quick Start
 
-### 环境要求
+### Requirements
 
 - Node.js 18+
 - npm
-- Cloudflare 账户（用于部署）
+- Cloudflare account (for deployment)
 
-### 安装依赖
+### Install Dependencies
 
 ```bash
 npm install
 ```
 
-### 本地开发
+### Local Development
 
 ```bash
-# 启动开发服务器
+# Start development server
 npx wrangler dev
 ```
 
-开发服务器将在本地启动，你可以通过浏览器访问 `http://localhost:8787` 进行测试。
+The development server will start locally, and you can access it at `http://localhost:8787` for testing.
 
-### 代码规范
+### Code Standards
 
 ```bash
-# 代码检查
+# Code linting
 npm run lint
 
-# 自动修复代码问题
+# Auto-fix code issues
 npm run lint:fix
 
-# 格式化代码
+# Format code
 npm run format
 ```
 
-### 运行测试
+### Run Tests
 
 ```bash
-# 运行测试
+# Run tests
 npm test
 
-# 运行测试并生成覆盖率报告
+# Run tests with coverage report
 npm run test:coverage
 ```
 
-## 🌐 部署
+## 🌐 Deployment
 
-本存储库已配置完整的 GitHub Actions 工作流：
+This repository includes a complete GitHub Actions setup:
 
-- `CI`：在 `pull_request` 和推送到 `main` 时执行 `npm ci`、`eslint`、`vitest` 和 `wrangler deploy --dry-run`
-- `Deploy`：在推送到 `main` 或手动触发时自动部署到 Cloudflare Workers
-- `CodeQL`：在 PR、`main` 推送和每周定时任务中执行静态安全扫描
-- `Dependency Review`：在 PR 中检查新增或升级依赖的风险，并自动回帖摘要
-- `Auto Merge Dependencies`：对 `dependabot[bot]` 和 `renovate[bot]` 创建的依赖升级 PR 自动批准并开启 auto-merge，等待必需检查通过后自动合并
+- `CI`: runs `npm ci`, `eslint`, `vitest`, and `wrangler deploy --dry-run` on `pull_request` and pushes to `main`
+- `Deploy`: automatically deploys to Cloudflare Workers on pushes to `main` or when triggered manually
+- `CodeQL`: runs static security analysis on PRs, pushes to `main`, and on a weekly schedule
+- `Dependency Review`: reviews dependency changes in pull requests and posts a summary comment
+- `Auto Merge Dependencies`: automatically approves dependency update PRs opened by `dependabot[bot]` and `renovate[bot]`, then enables GitHub auto-merge so they merge after required checks pass
 
-### 需要配置的 GitHub Secrets
+### Required GitHub Secrets
 
-在 GitHub 存储库的 `Settings > Secrets and variables > Actions` 中添加：
+Add the following secrets in `Settings > Secrets and variables > Actions`:
 
-- `CLOUDFLARE_API_TOKEN`：具有 Workers 部署权限的 Cloudflare API Token
-- `CLOUDFLARE_ACCOUNT_ID`：Cloudflare 账户 ID
+- `CLOUDFLARE_API_TOKEN`: a Cloudflare API token with Workers deployment permissions
+- `CLOUDFLARE_ACCOUNT_ID`: your Cloudflare account ID
 
-## 📚 API 参考
+## 📚 API Reference
 
-### 路由说明
+### Route Overview
 
-| 路径              | 功能       | 描述                              |
-| ----------------- | ---------- | --------------------------------- |
-| `/`               | 搜索首页   | 显示搜索界面                      |
-| `/search`         | 搜索功能   | 搜索扩展程序和主题                |
-| `/search/{query}` | 搜索查询   | 根据关键词搜索                    |
-| `/detail/{id}`    | 详情页面   | 显示扩展程序和主题详情            |
-| `/crx/{id}`       | 文件下载   | 下载 CRX 文件                     |
-| `/meta/{id}`      | 版本元数据 | 实时获取 CRX 版本、大小和校验信息 |
+| Path              | Function         | Description                                         |
+| ----------------- | ---------------- | --------------------------------------------------- |
+| `/`               | Search Homepage  | Display search interface                            |
+| `/search`         | Search Function  | Search for extensions and themes                    |
+| `/search/{query}` | Search Query     | Search by keywords                                  |
+| `/detail/{id}`    | Detail Page      | Display extension and theme details                 |
+| `/crx/{id}`       | File Download    | Download CRX files                                  |
+| `/meta/{id}`      | Version Metadata | Fetch live CRX version, size, and checksum metadata |
 
-### 配置参数
+### Configuration Parameters
 
-- `CACHE_DURATION`: 缓存持续时间（默认 1 小时）
-- `MAX_SEARCH_RESULTS`: 最大搜索结果数（默认 100）
-- `DATA_JSON_URL`: 数据源 API 地址
+- `CACHE_DURATION`: Cache duration (default 1 hour)
+- `MAX_SEARCH_RESULTS`: Maximum search results (default 100)
+- `DATA_JSON_URL`: Data source API URL
 
-## 🔧 开发指南
+## 🔧 Development Guide
 
-### 代码风格
+### Code Style
 
-存储库使用 ESLint 和 Prettier 保持代码一致性。请在提交代码前运行:
+The repository uses ESLint and Prettier to maintain code consistency. Please run before committing code:
 
 ```bash
 npm run lint:fix
 npm run format
 ```
 
-### 缓存策略
+### Caching Strategy
 
-存储库使用智能缓存策略来提高性能:
+The repository uses smart caching strategies to improve performance:
 
-- 数据缓存 1 小时
-- 静态资源长期缓存
-- 错误响应不缓存
+- Data cached for 1 hour
+- Static resources cached long-term
+- Error responses not cached
 
-## 🧪 测试
+## 🧪 Testing
 
-存储库使用 Vitest 进行测试，支持 Cloudflare Workers 环境。
+The repository uses Vitest for testing with support for Cloudflare Workers environment.
 
 ```bash
-# 运行所有测试
+# Run all tests
 npm test
 
-# 监视模式
+# Watch mode
 npm test -- --watch
 
-# 生成覆盖率报告
+# Generate coverage report
 npm run test:coverage
 ```
 
-## 🔗 相关存储库
+## 🔗 Related Repositories
 
-- [Chrome Web Store Lister](https://github.com/xixu-me/Chrome-Web-Store-Lister) - 提供扩展程序和主题数据的数据源存储库
+- [Chrome Web Store Lister](https://github.com/xixu-me/Chrome-Web-Store-Lister) - Data source repository providing extension and theme data
 
-## 📄 许可证
+## 📄 License
 
-本存储库基于 MIT 许可证开源 - 查看 [LICENSE](LICENSE) 文件了解详情。
+This repository is open source under the MIT License - see the [LICENSE](LICENSE) file for details.
