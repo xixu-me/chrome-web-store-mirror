@@ -40,6 +40,97 @@ describe("Router", () => {
     expect(fetch).toHaveBeenCalledTimes(1);
   });
 
+  it("proxies the root page from Chrome Web Store", async () => {
+    fetch.mockResolvedValueOnce(
+      new Response(
+        '<html><body><a href="/category/extensions">Extensions</a></body></html>',
+        {
+          headers: { "Content-Type": "text/html" },
+        },
+      ),
+    );
+
+    const { handleRequest } = await import("../src/router.js");
+    const response = await handleRequest(new Request("https://example.com/"));
+    const body = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(body).toContain('href="https://example.com/category/extensions"');
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(fetch.mock.calls[0][0]).toBe("https://chromewebstore.google.com/");
+  });
+
+  it("proxies search pages from Chrome Web Store", async () => {
+    fetch.mockResolvedValueOnce(
+      new Response("<html><body>upstream search</body></html>", {
+        headers: { "Content-Type": "text/html" },
+      }),
+    );
+
+    const { handleRequest } = await import("../src/router.js");
+    const response = await handleRequest(
+      new Request("https://example.com/search/ublock?hl=en-US"),
+    );
+
+    expect(response.status).toBe(200);
+    expect(await response.text()).toContain("upstream search");
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(fetch.mock.calls[0][0]).toBe(
+      "https://chromewebstore.google.com/search/ublock?hl=en-US",
+    );
+  });
+
+  it.each([
+    [
+      "/category/extensions",
+      "https://chromewebstore.google.com/category/extensions",
+    ],
+    ["/category/themes", "https://chromewebstore.google.com/category/themes"],
+    [
+      "/category/extensions/productivity",
+      "https://chromewebstore.google.com/category/extensions/productivity",
+    ],
+  ])("proxies mirror category page %s", async (path, upstreamUrl) => {
+    fetch.mockResolvedValueOnce(
+      new Response("<html><body>category</body></html>", {
+        headers: { "Content-Type": "text/html" },
+      }),
+    );
+
+    const { handleRequest } = await import("../src/router.js");
+    const response = await handleRequest(
+      new Request(`https://example.com${path}`),
+    );
+
+    expect(response.status).toBe(200);
+    expect(await response.text()).toContain("category");
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(fetch.mock.calls[0][0]).toBe(upstreamUrl);
+  });
+
+  it("redirects account pages to Chrome Web Store without proxying", async () => {
+    const { handleRequest } = await import("../src/router.js");
+    const response = await handleRequest(
+      new Request("https://example.com/user/installed?hl=en-US"),
+    );
+
+    expect(response.status).toBe(302);
+    expect(response.headers.get("Location")).toBe(
+      "https://chromewebstore.google.com/user/installed?hl=en-US",
+    );
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("returns 404 for unknown non-mirror paths without proxying", async () => {
+    const { handleRequest } = await import("../src/router.js");
+    const response = await handleRequest(
+      new Request("https://example.com/not-a-mirror-page"),
+    );
+
+    expect(response.status).toBe(404);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it("proxies detail pages from the item id without fetching data.json", async () => {
     fetch.mockResolvedValueOnce(
       new Response("<html><body><button>Add to Chrome</button></body></html>", {
