@@ -110,6 +110,40 @@ describe("Router", () => {
     );
   });
 
+  it("rewrites nested font URLs in proxied CSS assets", async () => {
+    fetch.mockResolvedValueOnce(
+      new Response(
+        "@font-face{src:url(https://fonts.gstatic.com/s/googlesans/font.woff2)}",
+        {
+          headers: {
+            "Content-Type": "text/css; charset=UTF-8",
+            "Set-Cookie": "secret=value",
+          },
+        },
+      ),
+    );
+
+    const { handleRequest } = await import("../src/router.js");
+    const response = await handleRequest(
+      new Request(
+        "https://example.com/asset?url=https%3A%2F%2Ffonts.googleapis.com%2Fcss2%3Ffamily%3DGoogle%2BSans",
+      ),
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Content-Type")).toBe(
+      "text/css; charset=UTF-8",
+    );
+    expect(response.headers.has("Set-Cookie")).toBe(false);
+    expect(await response.text()).toBe(
+      "@font-face{src:url(https://example.com/asset?url=https%3A%2F%2Ffonts.gstatic.com%2Fs%2Fgooglesans%2Ffont.woff2)}",
+    );
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(fetch.mock.calls[0][0]).toBe(
+      "https://fonts.googleapis.com/css2?family=Google+Sans",
+    );
+  });
+
   it("rejects asset proxy requests for disallowed hosts", async () => {
     const { handleRequest } = await import("../src/router.js");
     const response = await handleRequest(

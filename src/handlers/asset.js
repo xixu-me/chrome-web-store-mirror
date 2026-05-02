@@ -1,17 +1,17 @@
 /**
- * Image asset proxy handler
+ * Asset proxy handler
  */
 
-import { validateImageAssetUrl } from "../services/assets.js";
+import { rewriteImageAssetUrls, validateAssetUrl } from "../services/assets.js";
 
 /**
- * Handles requests for proxied Chrome Web Store image assets.
+ * Handles requests for proxied Chrome Web Store assets.
  * @param {Request} request The incoming request.
  * @returns {Promise<Response>} A promise that resolves to the response.
  */
 export async function handleAsset(request) {
   const requestUrl = new URL(request.url);
-  const validation = validateImageAssetUrl(requestUrl.searchParams.get("url"));
+  const validation = validateAssetUrl(requestUrl.searchParams.get("url"));
 
   if (validation.error) {
     return new Response(validation.error, {
@@ -36,6 +36,24 @@ export async function handleAsset(request) {
   const headers = new Headers(assetResponse.headers);
   headers.delete("Set-Cookie");
   headers.set("Cache-Control", "public, max-age=86400");
+
+  const contentType = headers.get("Content-Type") || "";
+  if (
+    contentType.includes("text/css") ||
+    contentType.includes("javascript") ||
+    contentType.includes("json")
+  ) {
+    headers.delete("Content-Length");
+    const body = rewriteImageAssetUrls(
+      await assetResponse.text(),
+      requestUrl.origin,
+    );
+    return new Response(body, {
+      status: assetResponse.status,
+      statusText: assetResponse.statusText,
+      headers,
+    });
+  }
 
   return new Response(assetResponse.body, {
     status: assetResponse.status,

@@ -1,17 +1,27 @@
-const ALLOWED_IMAGE_ASSET_HOSTS = new Set([
+const ALLOWED_ASSET_HOSTS = new Set([
   "lh3.googleusercontent.com",
   "lh4.googleusercontent.com",
   "lh5.googleusercontent.com",
   "lh6.googleusercontent.com",
+  "www.gstatic.com",
+  "fonts.googleapis.com",
+  "fonts.gstatic.com",
 ]);
 
-const IMAGE_ASSET_URL_PATTERN =
-  /https:\/\/(?:lh3|lh4|lh5|lh6)\.googleusercontent\.com\/[^\s"'<>\\)]+/g;
+const ALLOWED_ASSET_HOST_PATTERN =
+  "(?:(?:lh3|lh4|lh5|lh6)\\.googleusercontent\\.com|www\\.gstatic\\.com|fonts\\.googleapis\\.com|fonts\\.gstatic\\.com)";
 
-const ESCAPED_IMAGE_ASSET_URL_PATTERN =
-  /https:\\\/\\\/(?:lh3|lh4|lh5|lh6)\.googleusercontent\.com\\\/[^\s"'<>)]*/g;
+const ASSET_URL_PATTERN = new RegExp(
+  `https://${ALLOWED_ASSET_HOST_PATTERN}/[^\\s"'<>\\\\)]+`,
+  "g",
+);
 
-function decodeEscapedImageAssetUrl(assetUrl) {
+const ESCAPED_ASSET_URL_PATTERN = new RegExp(
+  `https:\\\\\\/\\\\\\/${ALLOWED_ASSET_HOST_PATTERN}\\\\\\/[^\\s"'<>)]*`,
+  "g",
+);
+
+function decodeEscapedAssetUrl(assetUrl) {
   return assetUrl
     .replace(/\\\//g, "/")
     .replace(/\\x([0-9a-fA-F]{2})/g, (_, hex) =>
@@ -22,8 +32,8 @@ function decodeEscapedImageAssetUrl(assetUrl) {
     );
 }
 
-function buildProxiedImageAssetUrl(assetUrl, origin) {
-  const validation = validateImageAssetUrl(assetUrl);
+function buildProxiedAssetUrl(assetUrl, origin) {
+  const validation = validateAssetUrl(assetUrl);
   if (validation.error) {
     return assetUrl;
   }
@@ -31,7 +41,7 @@ function buildProxiedImageAssetUrl(assetUrl, origin) {
   return `${origin}/asset?url=${encodeURIComponent(validation.url.toString())}`;
 }
 
-export function validateImageAssetUrl(rawUrl) {
+export function validateAssetUrl(rawUrl) {
   if (!rawUrl) {
     return {
       error: "Missing asset URL",
@@ -56,7 +66,7 @@ export function validateImageAssetUrl(rawUrl) {
     };
   }
 
-  if (!ALLOWED_IMAGE_ASSET_HOSTS.has(assetUrl.hostname)) {
+  if (!ALLOWED_ASSET_HOSTS.has(assetUrl.hostname)) {
     return {
       error: "Asset host is not allowed",
       status: 403,
@@ -70,11 +80,11 @@ export function validateImageAssetUrl(rawUrl) {
 }
 
 export function rewriteImageAssetUrls(content, origin) {
-  content = content.replace(ESCAPED_IMAGE_ASSET_URL_PATTERN, (assetUrl) =>
-    buildProxiedImageAssetUrl(decodeEscapedImageAssetUrl(assetUrl), origin),
+  content = content.replace(ESCAPED_ASSET_URL_PATTERN, (assetUrl) =>
+    buildProxiedAssetUrl(decodeEscapedAssetUrl(assetUrl), origin),
   );
 
-  return content.replace(IMAGE_ASSET_URL_PATTERN, (assetUrl) =>
-    buildProxiedImageAssetUrl(assetUrl, origin),
+  return content.replace(ASSET_URL_PATTERN, (assetUrl) =>
+    buildProxiedAssetUrl(assetUrl, origin),
   );
 }
