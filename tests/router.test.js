@@ -83,14 +83,35 @@ describe("Router", () => {
   });
 
   it("reverse proxies CRX downloads from the item id without fetching data.json", async () => {
-    fetch.mockResolvedValueOnce(
-      new Response("crx", {
-        status: 200,
-        headers: {
-          "Content-Type": "application/x-chrome-extension",
-        },
-      }),
-    );
+    fetch
+      .mockResolvedValueOnce(
+        new Response(
+          '<html><head><meta property="og:title" content="Test Extension - Chrome Web Store"></head></html>',
+          {
+            headers: {
+              "Content-Type": "text/html; charset=UTF-8",
+            },
+          },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          '<?xml version="1.0" encoding="UTF-8"?><gupdate><app appid="abcdefghijklmnopabcdefghijklmnop" status="ok"><updatecheck status="ok" version="1.2.3" size="12345" hash_sha256="abc123" fp="1.abc123"/></app></gupdate>',
+          {
+            headers: {
+              "Content-Type": "text/xml; charset=UTF-8",
+            },
+          },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response("crx", {
+          status: 200,
+          headers: {
+            "Content-Type": "application/x-chrome-extension",
+          },
+        }),
+      );
 
     const { handleRequest } = await import("../src/router.js");
     const response = await handleRequest(
@@ -99,24 +120,91 @@ describe("Router", () => {
 
     expect(response.status).toBe(200);
     expect(response.headers.get("Content-Disposition")).toBe(
-      'attachment; filename="abcdefghijklmnopabcdefghijklmnop.crx"',
+      "attachment; filename=\"Test Extension 1.2.3.crx\"; filename*=UTF-8''Test%20Extension%201.2.3.crx",
     );
     expect(await response.text()).toBe("crx");
-    expect(fetch).toHaveBeenCalledTimes(1);
-    expect(fetch.mock.calls[0][0]).toContain(
+    expect(fetch).toHaveBeenCalledTimes(3);
+    expect(fetch.mock.calls[0][0]).toBe(
+      "https://chromewebstore.google.com/detail/abcdefghijklmnopabcdefghijklmnop",
+    );
+    expect(fetch.mock.calls[1][0]).toContain("response=updatecheck");
+    expect(fetch.mock.calls[2][0]).toContain(
       "https://clients2.google.com/service/update2/crx",
     );
-    expect(fetch.mock.calls[0][1]).toMatchObject({
+    expect(fetch.mock.calls[2][1]).toMatchObject({
       redirect: "follow",
     });
-    expect(fetch.mock.calls[0][0]).toContain(
+    expect(fetch.mock.calls[2][0]).toContain(
       "id%3Dabcdefghijklmnopabcdefghijklmnop",
     );
-    expect(fetch.mock.calls[0][0]).toContain("prodversion=147.0.0.0");
+    expect(fetch.mock.calls[2][0]).toContain("prodversion=147.0.0.0");
+  });
+
+  it("sanitizes CRX filenames while preserving name and version", async () => {
+    fetch
+      .mockResolvedValueOnce(
+        new Response(
+          "<html><head><title>Bad/File:Name*? - Chrome Web Store</title></head></html>",
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          '<gupdate><app status="ok"><updatecheck status="ok" version="2.0.0" size="1"/></app></gupdate>',
+        ),
+      )
+      .mockResolvedValueOnce(new Response("crx"));
+
+    const { handleRequest } = await import("../src/router.js");
+    const response = await handleRequest(
+      new Request("https://example.com/crx/abcdefghijklmnopabcdefghijklmnop"),
+    );
+
+    expect(response.headers.get("Content-Disposition")).toBe(
+      "attachment; filename=\"Bad_File_Name__ 2.0.0.crx\"; filename*=UTF-8''Bad_File_Name__%202.0.0.crx",
+    );
+  });
+
+  it("falls back to the item id when CRX filename metadata is unavailable", async () => {
+    fetch
+      .mockResolvedValueOnce(new Response("not found", { status: 404 }))
+      .mockResolvedValueOnce(new Response("not found", { status: 404 }))
+      .mockResolvedValueOnce(
+        new Response("crx", {
+          status: 200,
+          headers: {
+            "Content-Type": "application/x-chrome-extension",
+          },
+        }),
+      );
+
+    const { handleRequest } = await import("../src/router.js");
+    const response = await handleRequest(
+      new Request("https://example.com/crx/abcdefghijklmnopabcdefghijklmnop"),
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Content-Disposition")).toBe(
+      "attachment; filename=\"abcdefghijklmnopabcdefghijklmnop.crx\"; filename*=UTF-8''abcdefghijklmnopabcdefghijklmnop.crx",
+    );
+    expect(await response.text()).toBe("crx");
+    expect(fetch).toHaveBeenCalledTimes(3);
+    expect(fetch.mock.calls[2][0]).toContain(
+      "https://clients2.google.com/service/update2/crx",
+    );
+    expect(fetch.mock.calls[2][1]).toMatchObject({
+      redirect: "follow",
+    });
+    expect(fetch.mock.calls[2][0]).toContain(
+      "id%3Dabcdefghijklmnopabcdefghijklmnop",
+    );
+    expect(fetch.mock.calls[2][0]).toContain("prodversion=147.0.0.0");
   });
 
   it("uses the request Chrome version for CRX download requests", async () => {
-    fetch.mockResolvedValueOnce(new Response("crx"));
+    fetch
+      .mockResolvedValueOnce(new Response("not found", { status: 404 }))
+      .mockResolvedValueOnce(new Response("not found", { status: 404 }))
+      .mockResolvedValueOnce(new Response("crx"));
 
     const { handleRequest } = await import("../src/router.js");
     await handleRequest(
@@ -128,18 +216,22 @@ describe("Router", () => {
       }),
     );
 
-    expect(fetch.mock.calls[0][0]).toContain("prodversion=149.2.3.4");
+    expect(fetch.mock.calls[1][0]).toContain("prodversion=149.2.3.4");
+    expect(fetch.mock.calls[2][0]).toContain("prodversion=149.2.3.4");
   });
 
   it("does not expose unresolved upstream CRX redirects to clients", async () => {
-    fetch.mockResolvedValueOnce(
-      new Response(null, {
-        status: 302,
-        headers: {
-          Location: "https://clients2.googleusercontent.com/crx/download",
-        },
-      }),
-    );
+    fetch
+      .mockResolvedValueOnce(new Response("not found", { status: 404 }))
+      .mockResolvedValueOnce(new Response("not found", { status: 404 }))
+      .mockResolvedValueOnce(
+        new Response(null, {
+          status: 302,
+          headers: {
+            Location: "https://clients2.googleusercontent.com/crx/download",
+          },
+        }),
+      );
 
     const { handleRequest } = await import("../src/router.js");
     const response = await handleRequest(
