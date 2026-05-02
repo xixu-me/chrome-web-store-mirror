@@ -8,6 +8,29 @@ const ALLOWED_IMAGE_ASSET_HOSTS = new Set([
 const IMAGE_ASSET_URL_PATTERN =
   /https:\/\/(?:lh3|lh4|lh5|lh6)\.googleusercontent\.com\/[^\s"'<>\\)]+/g;
 
+const ESCAPED_IMAGE_ASSET_URL_PATTERN =
+  /https:\\\/\\\/(?:lh3|lh4|lh5|lh6)\.googleusercontent\.com\\\/[^\s"'<>)]*/g;
+
+function decodeEscapedImageAssetUrl(assetUrl) {
+  return assetUrl
+    .replace(/\\\//g, "/")
+    .replace(/\\x([0-9a-fA-F]{2})/g, (_, hex) =>
+      String.fromCharCode(Number.parseInt(hex, 16)),
+    )
+    .replace(/\\u([0-9a-fA-F]{4})/g, (_, hex) =>
+      String.fromCharCode(Number.parseInt(hex, 16)),
+    );
+}
+
+function buildProxiedImageAssetUrl(assetUrl, origin) {
+  const validation = validateImageAssetUrl(assetUrl);
+  if (validation.error) {
+    return assetUrl;
+  }
+
+  return `${origin}/asset?url=${encodeURIComponent(validation.url.toString())}`;
+}
+
 export function validateImageAssetUrl(rawUrl) {
   if (!rawUrl) {
     return {
@@ -47,12 +70,11 @@ export function validateImageAssetUrl(rawUrl) {
 }
 
 export function rewriteImageAssetUrls(content, origin) {
-  return content.replace(IMAGE_ASSET_URL_PATTERN, (assetUrl) => {
-    const validation = validateImageAssetUrl(assetUrl);
-    if (validation.error) {
-      return assetUrl;
-    }
+  content = content.replace(ESCAPED_IMAGE_ASSET_URL_PATTERN, (assetUrl) =>
+    buildProxiedImageAssetUrl(decodeEscapedImageAssetUrl(assetUrl), origin),
+  );
 
-    return `${origin}/asset?url=${encodeURIComponent(validation.url.toString())}`;
-  });
+  return content.replace(IMAGE_ASSET_URL_PATTERN, (assetUrl) =>
+    buildProxiedImageAssetUrl(assetUrl, origin),
+  );
 }

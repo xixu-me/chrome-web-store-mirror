@@ -58,6 +58,18 @@ describe("URL Utils", () => {
     );
   });
 
+  it("should rewrite escaped Chrome Web Store image CDN URLs through the asset proxy", () => {
+    const content =
+      "_setImgSrc('i5','https:\\/\\/lh3.googleusercontent.com\\/screenshot\\x3ds1280-w1280-h800');";
+    const origin = "https://mirror.example.com";
+
+    const result = rewriteUrls(content, origin);
+
+    expect(result).toBe(
+      "_setImgSrc('i5','https://mirror.example.com/asset?url=https%3A%2F%2Flh3.googleusercontent.com%2Fscreenshot%3Ds1280-w1280-h800');",
+    );
+  });
+
   it("should not rewrite non-image Google asset hosts through the asset proxy", () => {
     const content = '<script src="https://www.gstatic.com/script.js"></script>';
     const origin = "https://mirror.example.com";
