@@ -413,88 +413,6 @@ export const errorStyles = `
 `;
 
 /**
- * Banner styles for the proxy download banner
- */
-export const bannerStyles = `
-  #mirror-banner {
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    right: 0;
-    background: linear-gradient(135deg, #0052d9, #4285f4);
-    color: white;
-    padding: 12px 20px;
-    z-index: 999999;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    border-bottom: 1px solid rgba(255,255,255,0.2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 16px;
-    transform: translateY(-100%);
-    animation: slideDown 0.4s ease-out 0.5s forwards;
-  }
-
-  @keyframes slideDown {
-    to { transform: translateY(0); }
-  }
-
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.05); }
-  }
-
-  #mirror-banner .download-btn {
-    background: rgba(255,255,255,0.2);
-    border: 1px solid rgba(255,255,255,0.3);
-    color: white;
-    padding: 8px 16px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-weight: 600;
-    font-size: 14px;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  #mirror-banner .download-btn:hover {
-    background: rgba(255,255,255,0.25);
-    border-color: rgba(255,255,255,0.4);
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-    animation: pulse 0.6s ease-in-out;
-  }
-
-  #mirror-banner .info {
-    font-size: 14px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  @media (max-width: 768px) {
-    #mirror-banner {
-      padding: 10px 16px;
-      flex-direction: column;
-      gap: 8px;
-      text-align: center;
-    }
-  }
-
-  body { 
-    padding-top: 60px !important; 
-    transition: padding-top 0.3s ease !important;
-  }
-
-  @media (max-width: 768px) {
-    body { padding-top: 80px !important; }
-  }
-`;
-
-/**
  * Gets the complete CSS for a specific page type
  * @param {string} pageType - Type of page (search, error, base)
  * @returns {string} Combined CSS styles
@@ -508,9 +426,6 @@ export function getStyles(pageType = "base") {
       break;
     case "error":
       styles += errorStyles;
-      break;
-    case "banner":
-      styles += bannerStyles;
       break;
   }
 
