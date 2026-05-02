@@ -2,6 +2,7 @@
  * Request router for Chrome Web Store Mirror
  */
 
+import { CHROME_WEBSTORE_BASE_URL } from "./config/constants.js";
 import { handleAsset } from "./handlers/asset.js";
 import { handleCrx } from "./handlers/crx.js";
 import { handleData } from "./handlers/data.js";
@@ -9,13 +10,9 @@ import { handleDetail } from "./handlers/detail.js";
 import { handle404 } from "./handlers/error.js";
 import { handleMeta } from "./handlers/meta.js";
 import { handleRobots } from "./handlers/robots.js";
+import { handleSearch } from "./handlers/search.js";
 import { handleSitemap } from "./handlers/sitemap.js";
 import { proxyRequest } from "./utils/proxy.js";
-import {
-  buildChromeWebStoreUrl,
-  isMirrorPagePath,
-  isRedirectOnlyPath,
-} from "./utils/routes.js";
 
 /**
  * Handles incoming requests and routes them to the appropriate handler.
@@ -24,6 +21,11 @@ import {
  */
 export async function handleRequest(request) {
   const url = new URL(request.url);
+
+  if (url.pathname === "/" || url.pathname === "") {
+    // Show search page directly at root
+    return handleSearch(request);
+  }
 
   // SEO files
   if (url.pathname === "/robots.txt") {
@@ -54,28 +56,25 @@ export async function handleRequest(request) {
     return handleMeta(request);
   }
 
-  if (isRedirectOnlyPath(url.pathname)) {
-    return Response.redirect(buildChromeWebStoreUrl(url), 302);
+  if (url.pathname.startsWith("/search")) {
+    return handleSearch(request);
   }
 
-  if (isMirrorPagePath(url.pathname)) {
-    try {
-      const proxyResponse = await proxyRequest(
-        request,
-        buildChromeWebStoreUrl(url),
-      );
+  // For other paths, attempt to proxy them from the original site.
+  try {
+    const proxyResponse = await proxyRequest(
+      request,
+      `${CHROME_WEBSTORE_BASE_URL}${url.pathname}${url.search}`,
+    );
 
-      // If proxy request returns 404 or fails, show our 404 page
-      if (proxyResponse.status === 404) {
-        return handle404(request);
-      }
-
-      return proxyResponse;
-    } catch (error) {
-      // If proxy request fails, show our 404 page
+    // If proxy request returns 404 or fails, show our 404 page
+    if (proxyResponse.status === 404) {
       return handle404(request);
     }
-  }
 
-  return handle404(request);
+    return proxyResponse;
+  } catch (error) {
+    // If proxy request fails, show our 404 page
+    return handle404(request);
+  }
 }

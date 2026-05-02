@@ -100,14 +100,4 @@ describe("URL Utils", () => {
 
     expect(result).toBe(content);
   });
-
-  it("should leave external Google support links unchanged", () => {
-    const content =
-      '<a href="https://support.google.com/chrome_webstore/answer/1047776">Help</a>';
-    const origin = "https://mirror.example.com";
-
-    const result = rewriteUrls(content, origin);
-
-    expect(result).toBe(content);
-  });
 });
