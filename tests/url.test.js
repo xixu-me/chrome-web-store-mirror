@@ -41,6 +41,19 @@ describe("URL Utils", () => {
     expect(result).toContain("Visit https://mirror.example.com");
   });
 
+  it("should rewrite the header brand text to the mirror name", () => {
+    const content =
+      '<span class="DpcOrc">Chrome Web Store</span><input aria-label="Search Chrome Web Store">';
+    const origin = "https://mirror.example.com";
+
+    const result = rewriteUrls(content, origin);
+
+    expect(result).toContain(
+      '<span class="DpcOrc">Chrome Web Store Mirror</span>',
+    );
+    expect(result).toContain('aria-label="Search Chrome Web Store"');
+  });
+
   it("should rewrite allowed Chrome Web Store image CDN URLs through the asset proxy", () => {
     const content = `
       <img src="https://lh3.googleusercontent.com/icon=s128-rj-sc0x00ffffff">

@@ -13,6 +13,7 @@ import { rewriteImageAssetUrls } from "../services/assets.js";
  */
 export function rewriteUrls(content, origin) {
   content = rewriteImageAssetUrls(content, origin);
+  content = rewriteBrandText(content);
   // General URL rewrite for CSS, JS, etc.
   content = content.replace(new RegExp(CHROME_WEBSTORE_BASE_URL, "g"), origin);
   // Rewrite for HTML attributes like href, src
@@ -21,6 +22,13 @@ export function rewriteUrls(content, origin) {
     `$1="${origin}$2"`,
   );
   return content;
+}
+
+function rewriteBrandText(content) {
+  return content.replace(
+    />\s*Chrome Web Store\s*</g,
+    ">Chrome Web Store Mirror<",
+  );
 }
 
 /**
