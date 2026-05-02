@@ -65,6 +65,8 @@ describe("Router", () => {
     expect(body).toContain("mirror-download-button-script");
     expect(body).toContain("Add to Chrome");
     expect(body).toContain("Add to Desktop");
+    expect(body).toContain("button.UywwFc-LgbsSe");
+    expect(body).toContain(".UywwFc-vQzf8d");
     expect(body).toContain("Download CRX");
     expect(body).toContain('link.style.color = "white"');
     expect(body).toContain("const buttonStyle = getComputedStyle(button)");

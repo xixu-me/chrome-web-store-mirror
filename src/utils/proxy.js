@@ -154,15 +154,24 @@ function injectDownloadButtonScript(html, itemId, origin) {
       "添加到 Chrome",
       "添加至 Chrome",
     ]);
+    const installButtonSelector = "button.UywwFc-LgbsSe";
+    const installButtonTextSelector = ".UywwFc-vQzf8d";
 
     const normalize = (value) => value.trim().replace(/\\s+/g, " ");
 
-    const isAddToChromeButton = (element) => {
+    const isInstallButton = (element) => {
       if (!(element instanceof HTMLElement)) {
         return false;
       }
       if (element.dataset.mirrorDownloadButton === "true") {
         return false;
+      }
+
+      if (
+        element.matches(installButtonSelector) &&
+        element.querySelector(installButtonTextSelector)
+      ) {
+        return true;
       }
 
       const text = normalize(
@@ -207,7 +216,7 @@ function injectDownloadButtonScript(html, itemId, origin) {
       document
         .querySelectorAll('button, [role="button"]')
         .forEach((element) => {
-          if (isAddToChromeButton(element)) {
+          if (isInstallButton(element)) {
             replaceButton(element);
           }
         });
