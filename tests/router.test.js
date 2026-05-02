@@ -57,6 +57,10 @@ describe("Router", () => {
     expect(response.status).toBe(200);
     const body = await response.text();
     expect(body).not.toContain("mirror-banner");
+    expect(body).toContain("mirror-header-action-style");
+    expect(body).toContain("mirror-header-action-removal-script");
+    expect(body).toContain('header[role="banner"] .keVMg');
+    expect(body).toContain('header[role="banner"] .BW8iFc');
     expect(body).toContain("mirror-download-button-script");
     expect(body).toContain("Add to Chrome");
     expect(body).toContain("Add to Desktop");

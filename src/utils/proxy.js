@@ -45,6 +45,7 @@ export async function proxyRequest(request, targetUrl, itemId = null) {
   if (contentType.includes("text/html")) {
     let html = await response.text();
     html = rewriteUrls(html, workerUrl.origin);
+    html = injectHeaderActionRemovalScript(html);
     if (itemId) {
       html = injectDownloadButtonScript(html, itemId, workerUrl.origin);
     }
@@ -75,6 +76,60 @@ export async function proxyRequest(request, targetUrl, itemId = null) {
       headers: { "Content-Type": contentType },
     });
   }
+}
+
+function injectHeaderActionRemovalScript(html) {
+  const style = `
+  <style id="mirror-header-action-style">
+  header[role="banner"] .keVMg,
+  header[role="banner"] .BW8iFc {
+    display: none !important;
+  }
+  </style>
+  `;
+  const script = `
+  <script id="mirror-header-action-removal-script">
+  (() => {
+    const selectors = [
+      'header[role="banner"] .keVMg',
+      'header[role="banner"] .BW8iFc',
+    ];
+
+    const removeHeaderActions = () => {
+      selectors.forEach((selector) => {
+        document.querySelectorAll(selector).forEach((element) => {
+          element.remove();
+        });
+      });
+    };
+
+    const observe = () => {
+      removeHeaderActions();
+      if (!document.body) {
+        return;
+      }
+      new MutationObserver(removeHeaderActions).observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+    };
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", observe, { once: true });
+    } else {
+      observe();
+    }
+  })();
+  </script>
+  `;
+
+  const withStyle = html.includes("</head>")
+    ? html.replace("</head>", `${style}</head>`)
+    : `${style}${html}`;
+
+  return withStyle.includes("</body>")
+    ? withStyle.replace("</body>", `${script}</body>`)
+    : `${withStyle}${script}`;
 }
 
 /**
