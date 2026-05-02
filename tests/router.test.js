@@ -127,6 +127,9 @@ describe("Router", () => {
     expect(fetch.mock.calls[0][0]).toBe(
       "https://chromewebstore.google.com/detail/abcdefghijklmnopabcdefghijklmnop",
     );
+    expect(fetch.mock.calls[0][1]).toMatchObject({
+      redirect: "follow",
+    });
     expect(fetch.mock.calls[1][0]).toContain("response=updatecheck");
     expect(fetch.mock.calls[2][0]).toContain(
       "https://clients2.google.com/service/update2/crx",

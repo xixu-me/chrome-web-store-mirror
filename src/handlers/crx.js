@@ -82,10 +82,10 @@ async function fetchExtensionName(request, itemId) {
         request.headers.get("Accept-Language") || "en-US,en;q=0.9",
       "User-Agent": request.headers.get("User-Agent") || "Cloudflare Worker",
     },
-    redirect: "manual",
+    redirect: "follow",
   });
 
-  if (!response.ok || REDIRECT_STATUSES.has(response.status)) {
+  if (!response.ok) {
     return null;
   }
 
