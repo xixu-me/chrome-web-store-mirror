@@ -42,7 +42,7 @@ describe("Router", () => {
 
   it("proxies detail pages from the item id without fetching data.json", async () => {
     fetch.mockResolvedValueOnce(
-      new Response("<html><body>detail</body></html>", {
+      new Response("<html><body><button>Add to Chrome</button></body></html>", {
         headers: { "Content-Type": "text/html" },
       }),
     );
@@ -55,6 +55,14 @@ describe("Router", () => {
     );
 
     expect(response.status).toBe(200);
+    const body = await response.text();
+    expect(body).not.toContain("mirror-banner");
+    expect(body).toContain("mirror-download-button-script");
+    expect(body).toContain("Add to Chrome");
+    expect(body).toContain("Download CRX");
+    expect(body).toContain(
+      "https://example.com/crx/abcdefghijklmnopabcdefghijklmnop",
+    );
     expect(fetch).toHaveBeenCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toBe(
       "https://chromewebstore.google.com/detail/abcdefghijklmnopabcdefghijklmnop",

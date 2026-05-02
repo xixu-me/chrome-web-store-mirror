@@ -1,11 +1,10 @@
 /**
  * Proxy utilities for handling requests to Chrome Web Store
- * 
+ *
  * Handles proxying requests to the original Chrome Web Store while
- * applying necessary URL rewrites and adding download banners.
+ * applying necessary URL rewrites and replacing install buttons with CRX downloads.
  */
 
-import { getStyles } from "../assets/styles.js";
 import { handleRedirect, rewriteUrls } from "./url.js";
 
 /**
@@ -36,7 +35,7 @@ export async function proxyRequest(request, targetUrl, itemId = null) {
       `Failed to fetch from Chrome Web Store: ${response.status}`,
       {
         status: response.status,
-      }
+      },
     );
   }
 
@@ -46,9 +45,8 @@ export async function proxyRequest(request, targetUrl, itemId = null) {
   if (contentType.includes("text/html")) {
     let html = await response.text();
     html = rewriteUrls(html, workerUrl.origin);
-    // Only add banner on detail pages
     if (itemId) {
-      html = addDownloadBanner(html, itemId, workerUrl.origin);
+      html = injectDownloadButtonScript(html, itemId, workerUrl.origin);
     }
     return new Response(html, {
       status: 200,
@@ -80,26 +78,95 @@ export async function proxyRequest(request, targetUrl, itemId = null) {
 }
 
 /**
- * Adds a download banner to the HTML with a CRX download link (only for detail pages)
+ * Injects a script that replaces the upstream Add to Chrome button with a CRX download link.
  * @param {string} html - The HTML content
  * @param {string} itemId - The item ID for the CRX download
  * @param {string} origin - The origin of the worker
- * @returns {string} The HTML with the banner added
+ * @returns {string} The HTML with the replacement script added
  */
-function addDownloadBanner(html, itemId, origin) {
-  const banner = `
-  <div id="mirror-banner">
-    <style>${getStyles('banner')}</style>
-    <div class="info">
-      <span>📦</span>
-      <span>Download this extension or theme safely</span>
-    </div>
-    <a href="${origin}/crx/${itemId}" class="download-btn">
-      <span>⬇️</span>
-      <span>Download CRX</span>
-    </a>
-  </div>
+function injectDownloadButtonScript(html, itemId, origin) {
+  const downloadUrl = `${origin}/crx/${itemId}`;
+  const script = `
+  <script id="mirror-download-button-script">
+  (() => {
+    const downloadUrl = ${scriptString(downloadUrl)};
+    const downloadText = "Download CRX";
+    const addButtonLabels = new Set([
+      "Add to Chrome",
+      "添加到 Chrome",
+      "添加至 Chrome",
+    ]);
+
+    const normalize = (value) => value.trim().replace(/\\s+/g, " ");
+
+    const isAddToChromeButton = (element) => {
+      if (!(element instanceof HTMLElement)) {
+        return false;
+      }
+      if (element.dataset.mirrorDownloadButton === "true") {
+        return false;
+      }
+
+      const text = normalize(
+        element.innerText ||
+          element.textContent ||
+          element.getAttribute("aria-label") ||
+          "",
+      );
+      return addButtonLabels.has(text);
+    };
+
+    const replaceButton = (button) => {
+      if (!button.parentNode) {
+        return;
+      }
+
+      const link = document.createElement("a");
+      link.href = downloadUrl;
+      link.className = button.className;
+      link.textContent = downloadText;
+      link.setAttribute("role", "button");
+      link.setAttribute("aria-label", downloadText);
+      link.setAttribute("data-mirror-download-button", "true");
+      link.style.textDecoration = "none";
+      button.replaceWith(link);
+    };
+
+    const scan = () => {
+      document
+        .querySelectorAll('button, [role="button"]')
+        .forEach((element) => {
+          if (isAddToChromeButton(element)) {
+            replaceButton(element);
+          }
+        });
+    };
+
+    const observe = () => {
+      if (!document.body) {
+        return;
+      }
+      scan();
+      new MutationObserver(scan).observe(document.body, {
+        childList: true,
+        subtree: true,
+      });
+    };
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", observe, { once: true });
+    } else {
+      observe();
+    }
+  })();
+  </script>
   `;
-  
-  return html.replace(/<body[^>]*>/, `$&${banner}`);
+
+  return html.includes("</body>")
+    ? html.replace("</body>", `${script}</body>`)
+    : `${html}${script}`;
+}
+
+function scriptString(value) {
+  return JSON.stringify(value).replace(/</g, "\\u003c");
 }
