@@ -1,4 +1,4 @@
-***[汉语](README.md)***
+**_[汉语](README.md)_**
 
 # Chrome Web Store Mirror
 
@@ -127,13 +127,14 @@ Add the following secrets in `Settings > Secrets and variables > Actions`:
 
 ### Route Overview
 
-| Path | Function | Description |
-|------|----------|-------------|
-| `/` | Search Homepage | Display search interface |
-| `/search` | Search Function | Search for extensions and themes |
-| `/search/{query}` | Search Query | Search by keywords |
-| `/detail/{id}` | Detail Page | Display extension and theme details |
-| `/crx/{id}` | File Download | Download CRX files |
+| Path              | Function         | Description                                         |
+| ----------------- | ---------------- | --------------------------------------------------- |
+| `/`               | Search Homepage  | Display search interface                            |
+| `/search`         | Search Function  | Search for extensions and themes                    |
+| `/search/{query}` | Search Query     | Search by keywords                                  |
+| `/detail/{id}`    | Detail Page      | Display extension and theme details                 |
+| `/crx/{id}`       | File Download    | Download CRX files                                  |
+| `/meta/{id}`      | Version Metadata | Fetch live CRX version, size, and checksum metadata |
 
 ### Configuration Parameters
 
