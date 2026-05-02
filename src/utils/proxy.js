@@ -93,6 +93,7 @@ function injectDownloadButtonScript(html, itemId, origin) {
     const downloadText = "Download CRX";
     const addButtonLabels = new Set([
       "Add to Chrome",
+      "Add to Desktop",
       "添加到 Chrome",
       "添加至 Chrome",
     ]);
