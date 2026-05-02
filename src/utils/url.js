@@ -3,6 +3,7 @@
  */
 
 import { CHROME_WEBSTORE_BASE_URL } from "../config/constants.js";
+import { rewriteImageAssetUrls } from "../services/assets.js";
 
 /**
  * Rewrites URLs in the content to point to the mirror.
@@ -11,12 +12,13 @@ import { CHROME_WEBSTORE_BASE_URL } from "../config/constants.js";
  * @returns {string} The content with rewritten URLs.
  */
 export function rewriteUrls(content, origin) {
+  content = rewriteImageAssetUrls(content, origin);
   // General URL rewrite for CSS, JS, etc.
   content = content.replace(new RegExp(CHROME_WEBSTORE_BASE_URL, "g"), origin);
   // Rewrite for HTML attributes like href, src
   content = content.replace(
     /(href|src|action)=["'](\/.*?)["']/g,
-    `$1="${origin}$2"`
+    `$1="${origin}$2"`,
   );
   return content;
 }

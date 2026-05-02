@@ -3,6 +3,7 @@
  */
 
 import { CHROME_WEBSTORE_BASE_URL } from "./config/constants.js";
+import { handleAsset } from "./handlers/asset.js";
 import { handleCrx } from "./handlers/crx.js";
 import { handleData } from "./handlers/data.js";
 import { handleDetail } from "./handlers/detail.js";
@@ -37,6 +38,10 @@ export async function handleRequest(request) {
 
   if (url.pathname === "/data.json") {
     return handleData();
+  }
+
+  if (url.pathname === "/asset") {
+    return handleAsset(request);
   }
 
   if (url.pathname.startsWith("/detail/")) {

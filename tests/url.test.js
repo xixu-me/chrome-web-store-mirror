@@ -22,7 +22,7 @@ describe("URL Utils", () => {
     const result = rewriteUrls(content, origin);
 
     expect(result).toBe(
-      '<a href="https://mirror.example.com/category/extensions">Extensions</a>'
+      '<a href="https://mirror.example.com/category/extensions">Extensions</a>',
     );
   });
 
@@ -39,5 +39,31 @@ describe("URL Utils", () => {
     expect(result).toContain('href="https://mirror.example.com/styles.css"');
     expect(result).toContain('src="https://mirror.example.com/script.js"');
     expect(result).toContain("Visit https://mirror.example.com");
+  });
+
+  it("should rewrite allowed Chrome Web Store image CDN URLs through the asset proxy", () => {
+    const content = `
+      <img src="https://lh3.googleusercontent.com/icon=s128-rj-sc0x00ffffff">
+      <meta property="og:image" content="https://lh5.googleusercontent.com/screenshot=w640-h400">
+    `;
+    const origin = "https://mirror.example.com";
+
+    const result = rewriteUrls(content, origin);
+
+    expect(result).toContain(
+      'src="https://mirror.example.com/asset?url=https%3A%2F%2Flh3.googleusercontent.com%2Ficon%3Ds128-rj-sc0x00ffffff"',
+    );
+    expect(result).toContain(
+      'content="https://mirror.example.com/asset?url=https%3A%2F%2Flh5.googleusercontent.com%2Fscreenshot%3Dw640-h400"',
+    );
+  });
+
+  it("should not rewrite non-image Google asset hosts through the asset proxy", () => {
+    const content = '<script src="https://www.gstatic.com/script.js"></script>';
+    const origin = "https://mirror.example.com";
+
+    const result = rewriteUrls(content, origin);
+
+    expect(result).toBe(content);
   });
 });
