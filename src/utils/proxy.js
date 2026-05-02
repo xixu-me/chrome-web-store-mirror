@@ -128,6 +128,8 @@ function injectDownloadButtonScript(html, itemId, origin) {
       link.setAttribute("role", "button");
       link.setAttribute("aria-label", downloadText);
       link.setAttribute("data-mirror-download-button", "true");
+      link.style.color = "white";
+      link.style.setProperty("color", "white", "important");
       link.style.textDecoration = "none";
       button.replaceWith(link);
     };
