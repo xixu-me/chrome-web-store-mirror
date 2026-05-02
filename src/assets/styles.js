@@ -1,6 +1,6 @@
 /**
  * Consolidated CSS styles for the Chrome Web Store Mirror
- * 
+ *
  * This module contains all CSS styles used throughout the application,
  * providing a consistent design system and eliminating style duplication.
  */
@@ -145,6 +145,26 @@ export const baseStyles = `
     justify-content: center;
     flex-wrap: wrap;
     margin-top: var(--spacing-xl);
+  }
+
+  .site-footer {
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    text-align: center;
+  }
+
+  .site-footer a {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .site-footer a:hover {
+    color: var(--primary-hover);
+    text-decoration: underline;
   }
 
   @media (max-width: 768px) {
@@ -479,21 +499,21 @@ export const bannerStyles = `
  * @param {string} pageType - Type of page (search, error, base)
  * @returns {string} Combined CSS styles
  */
-export function getStyles(pageType = 'base') {
+export function getStyles(pageType = "base") {
   let styles = baseStyles;
-  
+
   switch (pageType) {
-    case 'search':
+    case "search":
       styles += searchStyles;
       break;
-    case 'error':
+    case "error":
       styles += errorStyles;
       break;
-    case 'banner':
+    case "banner":
       styles += bannerStyles;
       break;
   }
-  
+
   return styles;
 }
 
