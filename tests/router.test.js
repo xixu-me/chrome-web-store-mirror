@@ -188,6 +188,9 @@ describe("Router", () => {
     expect(fetch.mock.calls[0][0]).toContain(
       "id%3Dabcdefghijklmnopabcdefghijklmnop",
     );
+    expect(fetch.mock.calls[0][1]).toMatchObject({
+      redirect: "manual",
+    });
   });
 
   it("rejects invalid CRX metadata ids without fetching upstream", async () => {
@@ -203,5 +206,26 @@ describe("Router", () => {
     );
     expect(body).toEqual({ error: "Invalid extension id" });
     expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("does not expose unresolved upstream metadata redirects to clients", async () => {
+    fetch.mockResolvedValueOnce(
+      new Response(null, {
+        status: 302,
+        headers: {
+          Location: "https://example.invalid/updatecheck",
+        },
+      }),
+    );
+
+    const { handleRequest } = await import("../src/router.js");
+    const response = await handleRequest(
+      new Request("https://example.com/meta/abcdefghijklmnopabcdefghijklmnop"),
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(502);
+    expect(response.headers.has("Location")).toBe(false);
+    expect(body).toEqual({ error: "Failed to resolve CRX metadata redirect" });
   });
 });
