@@ -7,6 +7,7 @@ import { handleCrx } from "./handlers/crx.js";
 import { handleData } from "./handlers/data.js";
 import { handleDetail } from "./handlers/detail.js";
 import { handle404 } from "./handlers/error.js";
+import { handleMeta } from "./handlers/meta.js";
 import { handleRobots } from "./handlers/robots.js";
 import { handleSearch } from "./handlers/search.js";
 import { handleSitemap } from "./handlers/sitemap.js";
@@ -44,6 +45,10 @@ export async function handleRequest(request) {
 
   if (url.pathname.startsWith("/crx/")) {
     return handleCrx(request);
+  }
+
+  if (url.pathname.startsWith("/meta/")) {
+    return handleMeta(request);
   }
 
   if (url.pathname.startsWith("/search")) {

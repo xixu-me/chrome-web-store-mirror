@@ -149,4 +149,59 @@ describe("Router", () => {
     expect(response.status).toBe(502);
     expect(response.headers.has("Location")).toBe(false);
   });
+
+  it("returns live CRX metadata from updatecheck without downloading the CRX", async () => {
+    fetch.mockResolvedValueOnce(
+      new Response(
+        '<?xml version="1.0" encoding="UTF-8"?><gupdate><app appid="abcdefghijklmnopabcdefghijklmnop" status="ok"><updatecheck status="ok" version="1.2.3" size="12345" hash_sha256="abc123" fp="1.abc123" codebase="https://clients2.googleusercontent.com/crx/example.crx"/></app></gupdate>',
+        {
+          headers: {
+            "Content-Type": "text/xml; charset=UTF-8",
+          },
+        },
+      ),
+    );
+
+    const { handleRequest } = await import("../src/router.js");
+    const response = await handleRequest(
+      new Request("https://example.com/meta/abcdefghijklmnopabcdefghijklmnop"),
+    );
+    const metadata = await response.json();
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Content-Type")).toBe(
+      "application/json; charset=UTF-8",
+    );
+    expect(metadata).toEqual({
+      id: "abcdefghijklmnopabcdefghijklmnop",
+      version: "1.2.3",
+      size: 12345,
+      hashSha256: "abc123",
+      fingerprint: "1.abc123",
+      downloadUrl: "/crx/abcdefghijklmnopabcdefghijklmnop",
+    });
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(fetch.mock.calls[0][0]).toContain(
+      "https://clients2.google.com/service/update2/crx",
+    );
+    expect(fetch.mock.calls[0][0]).toContain("response=updatecheck");
+    expect(fetch.mock.calls[0][0]).toContain(
+      "id%3Dabcdefghijklmnopabcdefghijklmnop",
+    );
+  });
+
+  it("rejects invalid CRX metadata ids without fetching upstream", async () => {
+    const { handleRequest } = await import("../src/router.js");
+    const response = await handleRequest(
+      new Request("https://example.com/meta/not-valid"),
+    );
+    const body = await response.json();
+
+    expect(response.status).toBe(404);
+    expect(response.headers.get("Content-Type")).toBe(
+      "application/json; charset=UTF-8",
+    );
+    expect(body).toEqual({ error: "Invalid extension id" });
+    expect(fetch).not.toHaveBeenCalled();
+  });
 });
