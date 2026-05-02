@@ -82,19 +82,33 @@ describe("Router", () => {
     );
   });
 
-  it("streams CRX downloads from the item id without fetching data.json", async () => {
-    fetch.mockResolvedValueOnce(new Response("crx", { status: 302 }));
+  it("reverse proxies CRX downloads from the item id without fetching data.json", async () => {
+    fetch.mockResolvedValueOnce(
+      new Response("crx", {
+        status: 200,
+        headers: {
+          "Content-Type": "application/x-chrome-extension",
+        },
+      }),
+    );
 
     const { handleRequest } = await import("../src/router.js");
     const response = await handleRequest(
       new Request("https://example.com/crx/abcdefghijklmnopabcdefghijklmnop"),
     );
 
-    expect(response.status).toBe(302);
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Content-Disposition")).toBe(
+      'attachment; filename="abcdefghijklmnopabcdefghijklmnop.crx"',
+    );
+    expect(await response.text()).toBe("crx");
     expect(fetch).toHaveBeenCalledTimes(1);
     expect(fetch.mock.calls[0][0]).toContain(
       "https://clients2.google.com/service/update2/crx",
     );
+    expect(fetch.mock.calls[0][1]).toMatchObject({
+      redirect: "follow",
+    });
     expect(fetch.mock.calls[0][0]).toContain(
       "id%3Dabcdefghijklmnopabcdefghijklmnop",
     );
@@ -102,7 +116,7 @@ describe("Router", () => {
   });
 
   it("uses the request Chrome version for CRX download requests", async () => {
-    fetch.mockResolvedValueOnce(new Response("crx", { status: 302 }));
+    fetch.mockResolvedValueOnce(new Response("crx"));
 
     const { handleRequest } = await import("../src/router.js");
     await handleRequest(
@@ -115,5 +129,24 @@ describe("Router", () => {
     );
 
     expect(fetch.mock.calls[0][0]).toContain("prodversion=149.2.3.4");
+  });
+
+  it("does not expose unresolved upstream CRX redirects to clients", async () => {
+    fetch.mockResolvedValueOnce(
+      new Response(null, {
+        status: 302,
+        headers: {
+          Location: "https://clients2.googleusercontent.com/crx/download",
+        },
+      }),
+    );
+
+    const { handleRequest } = await import("../src/router.js");
+    const response = await handleRequest(
+      new Request("https://example.com/crx/abcdefghijklmnopabcdefghijklmnop"),
+    );
+
+    expect(response.status).toBe(502);
+    expect(response.headers.has("Location")).toBe(false);
   });
 });

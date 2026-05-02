@@ -7,6 +7,7 @@ import { isValidExtensionId } from "../utils/extension.js";
 import { handle404 } from "./error.js";
 
 const FALLBACK_CHROME_VERSION = "147.0.0.0";
+const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
 
 function getChromeProductVersion(request) {
   const userAgent = request.headers.get("User-Agent") || "";
@@ -45,10 +46,29 @@ export async function handleCrx(request) {
   downloadUrl.searchParams.set("x", `id=${itemId}&installsource=ondemand&uc`);
 
   const crxResponse = await fetch(downloadUrl.toString(), {
-    redirect: "manual",
+    headers: {
+      Accept: "application/x-chrome-extension, application/octet-stream, */*",
+      "User-Agent": request.headers.get("User-Agent") || "Cloudflare Worker",
+    },
+    redirect: "follow",
   });
+
+  if (REDIRECT_STATUSES.has(crxResponse.status)) {
+    return new Response("Failed to resolve CRX download redirect", {
+      status: 502,
+      headers: {
+        "Content-Type": "text/plain; charset=UTF-8",
+      },
+    });
+  }
+
   const newHeaders = new Headers(crxResponse.headers);
+  newHeaders.delete("Location");
+  newHeaders.delete("Set-Cookie");
   newHeaders.set("Content-Disposition", `attachment; filename="${itemId}.crx"`);
+  if (!newHeaders.has("Content-Type")) {
+    newHeaders.set("Content-Type", "application/x-chrome-extension");
+  }
 
   return new Response(crxResponse.body, {
     status: crxResponse.status,
