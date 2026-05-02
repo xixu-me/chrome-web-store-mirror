@@ -70,8 +70,30 @@ describe("URL Utils", () => {
     );
   });
 
-  it("should not rewrite non-image Google asset hosts through the asset proxy", () => {
-    const content = '<script src="https://www.gstatic.com/script.js"></script>';
+  it("should rewrite allowed Google static and font asset hosts through the asset proxy", () => {
+    const content = `
+      <script src="https://www.gstatic.com/chrome-webstore/app.js"></script>
+      <link href="https://fonts.googleapis.com/css2?family=Google+Sans" rel="stylesheet">
+      <style>@font-face{src:url(https://fonts.gstatic.com/s/googlesans/font.woff2)}</style>
+    `;
+    const origin = "https://mirror.example.com";
+
+    const result = rewriteUrls(content, origin);
+
+    expect(result).toContain(
+      'src="https://mirror.example.com/asset?url=https%3A%2F%2Fwww.gstatic.com%2Fchrome-webstore%2Fapp.js"',
+    );
+    expect(result).toContain(
+      'href="https://mirror.example.com/asset?url=https%3A%2F%2Ffonts.googleapis.com%2Fcss2%3Ffamily%3DGoogle%2BSans"',
+    );
+    expect(result).toContain(
+      "url(https://mirror.example.com/asset?url=https%3A%2F%2Ffonts.gstatic.com%2Fs%2Fgooglesans%2Ffont.woff2)",
+    );
+  });
+
+  it("should not rewrite disallowed Google service hosts through the asset proxy", () => {
+    const content =
+      '<script src="https://www.google-analytics.com/g/collect"></script>';
     const origin = "https://mirror.example.com";
 
     const result = rewriteUrls(content, origin);
