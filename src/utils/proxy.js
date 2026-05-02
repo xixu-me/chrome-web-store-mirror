@@ -81,6 +81,7 @@ export async function proxyRequest(request, targetUrl, itemId = null) {
 function injectHeaderActionRemovalScript(html) {
   const style = `
   <style id="mirror-header-action-style">
+  header[role="banner"] [role="search"],
   header[role="banner"] .keVMg,
   header[role="banner"] .BW8iFc {
     display: none !important;
@@ -91,6 +92,7 @@ function injectHeaderActionRemovalScript(html) {
   <script id="mirror-header-action-removal-script">
   (() => {
     const selectors = [
+      'header[role="banner"] [role="search"]',
       'header[role="banner"] .keVMg',
       'header[role="banner"] .BW8iFc',
     ];
