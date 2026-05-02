@@ -6,6 +6,7 @@ import { CHROME_CRX_DOWNLOAD_URL } from "../config/constants.js";
 import { isValidExtensionId } from "../utils/extension.js";
 
 const FALLBACK_CHROME_VERSION = "147.0.0.0";
+const REDIRECT_STATUSES = new Set([301, 302, 303, 307, 308]);
 
 function getChromeProductVersion(request) {
   const userAgent = request.headers.get("User-Agent") || "";
@@ -99,8 +100,15 @@ export async function handleMeta(request) {
       Accept: "text/xml, application/xml, */*",
       "User-Agent": request.headers.get("User-Agent") || "Cloudflare Worker",
     },
-    redirect: "error",
+    redirect: "manual",
   });
+
+  if (REDIRECT_STATUSES.has(updateResponse.status)) {
+    return jsonResponse(
+      { error: "Failed to resolve CRX metadata redirect" },
+      502,
+    );
+  }
 
   if (!updateResponse.ok) {
     return jsonResponse({ error: "Failed to fetch CRX metadata" }, 502);
