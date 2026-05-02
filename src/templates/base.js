@@ -6,6 +6,7 @@
  */
 
 import { getStyles } from "../assets/styles.js";
+import { REPOSITORY_URL } from "../config/constants.js";
 import { generateCompleteSEO, generatePageTitle } from "../utils/seo.js";
 
 /**
@@ -31,10 +32,10 @@ import { generateCompleteSEO, generatePageTitle } from "../utils/seo.js";
  */
 export function getPageTemplate(title, content, options = {}) {
   const {
-    pageType = 'base',
-    additionalCSS = '',
-    scripts = '',
-    seo = {}
+    pageType = "base",
+    additionalCSS = "",
+    scripts = "",
+    seo = {},
   } = options;
 
   // Generate complete page title
@@ -43,7 +44,7 @@ export function getPageTemplate(title, content, options = {}) {
   // Generate all SEO meta tags
   const seoTags = generateCompleteSEO({
     title: fullTitle,
-    ...seo
+    ...seo,
   });
 
   return `<!DOCTYPE html>
@@ -65,8 +66,12 @@ export function getPageTemplate(title, content, options = {}) {
     <main id="main-content" role="main">
       ${content}
     </main>
+    <footer class="site-footer">
+      Source repository:
+      <a href="${REPOSITORY_URL}" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </footer>
   </div>
-  ${scripts ? `<script>${scripts}</script>` : ''}
+  ${scripts ? `<script>${scripts}</script>` : ""}
 </body>
 </html>`;
 }
@@ -77,12 +82,12 @@ export function getPageTemplate(title, content, options = {}) {
  * @param {string} additionalCSS - Additional CSS
  * @returns {string} Wrapped content
  */
-export function getContentWrapper(content, additionalCSS = '') {
+export function getContentWrapper(content, additionalCSS = "") {
   return `
     <div class="content-wrapper">
       ${content}
     </div>
-    ${additionalCSS ? `<style>${additionalCSS}</style>` : ''}
+    ${additionalCSS ? `<style>${additionalCSS}</style>` : ""}
   `;
 }
 
@@ -98,11 +103,11 @@ export const htmlElements = {
    * @param {Object} attributes - Additional attributes
    * @returns {string} Button HTML
    */
-  button(text, href = '#', type = 'primary', attributes = {}) {
+  button(text, href = "#", type = "primary", attributes = {}) {
     const attrs = Object.entries(attributes)
       .map(([key, value]) => `${key}="${value}"`)
-      .join(' ');
-    
+      .join(" ");
+
     return `<a href="${href}" class="btn btn-${type}" ${attrs}>${text}</a>`;
   },
 
@@ -115,8 +120,8 @@ export const htmlElements = {
   card(content, attributes = {}) {
     const attrs = Object.entries(attributes)
       .map(([key, value]) => `${key}="${value}"`)
-      .join(' ');
-    
+      .join(" ");
+
     return `<div class="card" ${attrs}>${content}</div>`;
   },
 
@@ -126,7 +131,7 @@ export const htmlElements = {
    * @param {string} className - Additional CSS classes
    * @returns {string} Icon HTML
    */
-  icon(icon, className = '') {
+  icon(icon, className = "") {
     return `<span class="icon ${className}">${icon}</span>`;
   },
 
@@ -135,12 +140,12 @@ export const htmlElements = {
    * @param {string} text - Loading text
    * @returns {string} Loading spinner HTML
    */
-  loading(text = 'Loading...') {
+  loading(text = "Loading...") {
     return `
       <div class="loading">
         <div class="loading-spinner"></div>
         ${text}
       </div>
     `;
-  }
+  },
 };
