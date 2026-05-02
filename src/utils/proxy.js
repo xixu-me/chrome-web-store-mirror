@@ -198,6 +198,7 @@ function injectDownloadButtonScript(html, itemId, origin) {
       });
       link.style.color = "white";
       link.style.setProperty("color", "white", "important");
+      link.style.setProperty("font-weight", "700", "important");
       link.style.textDecoration = "none";
       button.replaceWith(link);
     };

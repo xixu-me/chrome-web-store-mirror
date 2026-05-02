@@ -71,6 +71,7 @@ describe("Router", () => {
     expect(body).toContain("fontFamily");
     expect(body).toContain("fontSize");
     expect(body).toContain("fontWeight");
+    expect(body).toContain('link.style.setProperty("font-weight", "700", "important")');
     expect(body).toContain("lineHeight");
     expect(body).toContain("letterSpacing");
     expect(body).toContain(
