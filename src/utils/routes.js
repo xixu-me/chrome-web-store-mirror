@@ -21,7 +21,8 @@ export function isMirrorPagePath(pathname) {
     pathname === "/search" ||
     pathname.startsWith("/search/") ||
     matchesPathOrChild(pathname, "/category/extensions") ||
-    matchesPathOrChild(pathname, "/category/themes")
+    matchesPathOrChild(pathname, "/category/themes") ||
+    matchesPathOrChild(pathname, "/collection")
   );
 }
 

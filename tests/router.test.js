@@ -90,7 +90,11 @@ describe("Router", () => {
       "/category/extensions/productivity",
       "https://chromewebstore.google.com/category/extensions/productivity",
     ],
-  ])("proxies mirror category page %s", async (path, upstreamUrl) => {
+    [
+      "/collection/featured",
+      "https://chromewebstore.google.com/collection/featured",
+    ],
+  ])("proxies mirror store page %s", async (path, upstreamUrl) => {
     fetch.mockResolvedValueOnce(
       new Response("<html><body>category</body></html>", {
         headers: { "Content-Type": "text/html" },
