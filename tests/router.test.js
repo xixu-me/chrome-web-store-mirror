@@ -82,6 +82,60 @@ describe("Router", () => {
     );
   });
 
+  it("streams allowed detail image assets through the asset proxy", async () => {
+    fetch.mockResolvedValueOnce(
+      new Response("image", {
+        headers: {
+          "Content-Type": "image/png",
+          "Set-Cookie": "secret=value",
+        },
+      }),
+    );
+
+    const { handleRequest } = await import("../src/router.js");
+    const response = await handleRequest(
+      new Request(
+        "https://example.com/asset?url=https%3A%2F%2Flh3.googleusercontent.com%2Ficon%3Ds128",
+      ),
+    );
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("Content-Type")).toBe("image/png");
+    expect(response.headers.has("Set-Cookie")).toBe(false);
+    expect(response.headers.get("Cache-Control")).toBe("public, max-age=86400");
+    expect(await response.text()).toBe("image");
+    expect(fetch).toHaveBeenCalledTimes(1);
+    expect(fetch.mock.calls[0][0]).toBe(
+      "https://lh3.googleusercontent.com/icon=s128",
+    );
+  });
+
+  it("rejects asset proxy requests for disallowed hosts", async () => {
+    const { handleRequest } = await import("../src/router.js");
+    const response = await handleRequest(
+      new Request(
+        "https://example.com/asset?url=https%3A%2F%2Fexample.com%2Fimage.png",
+      ),
+    );
+
+    expect(response.status).toBe(403);
+    expect(await response.text()).toBe("Asset host is not allowed");
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it("rejects asset proxy requests for non-HTTPS URLs", async () => {
+    const { handleRequest } = await import("../src/router.js");
+    const response = await handleRequest(
+      new Request(
+        "https://example.com/asset?url=http%3A%2F%2Flh3.googleusercontent.com%2Fimage.png",
+      ),
+    );
+
+    expect(response.status).toBe(400);
+    expect(await response.text()).toBe("Asset URL must use HTTPS");
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
   it("reverse proxies CRX downloads from the item id without fetching data.json", async () => {
     fetch
       .mockResolvedValueOnce(
