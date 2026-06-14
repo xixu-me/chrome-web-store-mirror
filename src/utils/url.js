@@ -15,7 +15,7 @@ export function rewriteUrls(content, origin) {
   content = rewriteImageAssetUrls(content, origin);
   content = rewriteBrandText(content);
   // General URL rewrite for CSS, JS, etc.
-  content = content.replace(new RegExp(CHROME_WEBSTORE_BASE_URL, "g"), origin);
+  content = content.split(CHROME_WEBSTORE_BASE_URL).join(origin);
   // Rewrite for HTML attributes like href, src
   content = content.replace(
     /(href|src|action)=["'](\/.*?)["']/g,
