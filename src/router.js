@@ -73,7 +73,7 @@ export async function handleRequest(request) {
     }
 
     return proxyResponse;
-  } catch (error) {
+  } catch {
     // If proxy request fails, show our 404 page
     return handle404(request);
   }
