@@ -16,10 +16,24 @@ export function rewriteUrls(content, origin) {
   content = rewriteBrandText(content);
   // General URL rewrite for CSS, JS, etc.
   content = content.split(CHROME_WEBSTORE_BASE_URL).join(origin);
-  // Rewrite for HTML attributes like href, src
-  content = content.replace(
-    /(href|src|action)=["'](\/.*?)["']/g,
-    `$1="${origin}$2"`,
+  // Resolve document-relative HTML URLs against the store root, just like
+  // the upstream <base>. Crawlers need not implement <base> to follow them.
+  content = content.replace(/<[a-z][^>]*>/gi, (tag) =>
+    tag.replace(
+      /(\s(?:href|src|action)\s*=\s*)(["'])(.*?)\2/gi,
+      (attribute, prefix, quote, value) => {
+        if (
+          !value ||
+          value.startsWith("#") ||
+          value.startsWith("//") ||
+          /^[a-z][a-z\d+.-]*:/i.test(value)
+        ) {
+          return attribute;
+        }
+        const resolved = new URL(value, `${origin}/`).href;
+        return `${prefix}${quote}${resolved}${quote}`;
+      },
+    ),
   );
   return content;
 }

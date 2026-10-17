@@ -114,3 +114,28 @@ describe("URL Utils", () => {
     expect(result).toBe(content);
   });
 });
+
+describe("document-relative URL rewriting", () => {
+  it("resolves dot-relative and bare detail links independently of the page path", () => {
+    const origin = "https://mirror.example.com";
+    const result = rewriteUrls(
+      '<base href="https://chromewebstore.google.com/"><a href="./detail/slug/abcdefghijklmnopabcdefghijklmnop">A</a><a href=\'detail/other/abcdefghijklmnopabcdefghijklmnop\'>B</a><form action="./search"><img src="./icon.png"></form>',
+      origin,
+    );
+    expect(result).toContain(
+      'href="https://mirror.example.com/detail/slug/abcdefghijklmnopabcdefghijklmnop"',
+    );
+    expect(result).toContain(
+      "href='https://mirror.example.com/detail/other/abcdefghijklmnopabcdefghijklmnop'",
+    );
+    expect(result).toContain('action="https://mirror.example.com/search"');
+    expect(result).toContain('src="https://mirror.example.com/icon.png"');
+    expect(result).not.toContain('href="./');
+  });
+
+  it("preserves external URLs, fragments, schemes and non-URL attributes", () => {
+    const content =
+      '<a href="//example.org/a">A</a><a href="#reviews">B</a><a href="mailto:a@example.org">C</a><a href="https://example.org/a">D</a><div data-href="./detail/test"></div>';
+    expect(rewriteUrls(content, "https://mirror.example.com")).toBe(content);
+  });
+});

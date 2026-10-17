@@ -30,6 +30,10 @@ Crawl-delay: 1
 # Sitemap location
 Sitemap: ${sitemapUrl}
 
+# Applebot is blocked at the edge too; leave robots.txt reachable.
+User-agent: Applebot
+Disallow: /
+
 # Specific bots
 User-agent: Googlebot
 Allow: /
@@ -44,7 +48,7 @@ Allow: /
   return new Response(robotsTxt, {
     headers: {
       "Content-Type": "text/plain;charset=UTF-8",
-      "Cache-Control": "public, max-age=86400", // Cache for 24 hours
+      "Cache-Control": "public, max-age=3600", // Refresh crawler policy within an hour
     },
   });
 }
