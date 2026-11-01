@@ -5,6 +5,8 @@
  * providing interactive features for the mirror application.
  */
 
+import { serializeForScript } from "../utils/escape.js";
+
 /**
  * Search functionality for the search page
  * @param {string} dataUrl - URL for the item catalog JSON
@@ -18,13 +20,13 @@ export function getSearchScript(
   maxResults = 100,
 ) {
   return `
-    const dataUrl = ${JSON.stringify(dataUrl)};
+    const dataUrl = ${serializeForScript(dataUrl)};
     const searchInput = document.getElementById('search-input');
     const resultsDiv = document.getElementById('results');
     let itemsPromise;
     
     // Get initial query from URL
-    const initialQuery = ${JSON.stringify(initialQuery)};
+    const initialQuery = ${serializeForScript(initialQuery)};
     if (initialQuery) {
       searchInput.value = initialQuery;
       performSearch(initialQuery);
@@ -139,7 +141,7 @@ export function getSearchScript(
 
         clearResults();
         const fragment = document.createDocumentFragment();
-        filteredItems.slice(0, ${maxResults}).forEach((item, index) => {
+        filteredItems.slice(0, ${serializeForScript(Number(maxResults) || 0)}).forEach((item, index) => {
           fragment.appendChild(createResultItem(item, index));
         });
         resultsDiv.appendChild(fragment);

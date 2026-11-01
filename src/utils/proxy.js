@@ -5,6 +5,7 @@
  * applying necessary URL rewrites and replacing install buttons with CRX downloads.
  */
 
+import { serializeForScript } from "./escape.js";
 import { handleRedirect, rewriteUrls } from "./url.js";
 
 /**
@@ -146,7 +147,7 @@ function injectDownloadButtonScript(html, itemId, origin) {
   const script = `
   <script id="mirror-download-button-script">
   (() => {
-    const downloadUrl = ${scriptString(downloadUrl)};
+    const downloadUrl = ${serializeForScript(downloadUrl)};
     const downloadText = "Download CRX";
     const addButtonLabels = new Set([
       "Add to Chrome",
@@ -245,8 +246,4 @@ function injectDownloadButtonScript(html, itemId, origin) {
   return html.includes("</body>")
     ? html.replace("</body>", `${script}</body>`)
     : `${html}${script}`;
-}
-
-function scriptString(value) {
-  return JSON.stringify(value).replace(/</g, "\\u003c");
 }

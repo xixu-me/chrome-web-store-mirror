@@ -7,6 +7,7 @@
 
 import { getStyles } from "../assets/styles.js";
 import { REPOSITORY_URL } from "../config/constants.js";
+import { escapeHtml } from "../utils/escape.js";
 import { generateCompleteSEO, generatePageTitle } from "../utils/seo.js";
 
 /**
@@ -50,7 +51,7 @@ export function getPageTemplate(title, content, options = {}) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>${fullTitle}</title>
+  <title>${escapeHtml(fullTitle)}</title>
   ${seoTags}
   <style>
     ${getStyles(pageType)}
@@ -105,10 +106,10 @@ export const htmlElements = {
    */
   button(text, href = "#", type = "primary", attributes = {}) {
     const attrs = Object.entries(attributes)
-      .map(([key, value]) => `${key}="${value}"`)
+      .map(([key, value]) => `${escapeHtml(key)}="${escapeHtml(value)}"`)
       .join(" ");
 
-    return `<a href="${href}" class="btn btn-${type}" ${attrs}>${text}</a>`;
+    return `<a href="${escapeHtml(href)}" class="btn btn-${escapeHtml(type)}" ${attrs}>${text}</a>`;
   },
 
   /**
@@ -119,7 +120,7 @@ export const htmlElements = {
    */
   card(content, attributes = {}) {
     const attrs = Object.entries(attributes)
-      .map(([key, value]) => `${key}="${value}"`)
+      .map(([key, value]) => `${escapeHtml(key)}="${escapeHtml(value)}"`)
       .join(" ");
 
     return `<div class="card" ${attrs}>${content}</div>`;
@@ -132,7 +133,7 @@ export const htmlElements = {
    * @returns {string} Icon HTML
    */
   icon(icon, className = "") {
-    return `<span class="icon ${className}">${icon}</span>`;
+    return `<span class="icon ${escapeHtml(className)}">${icon}</span>`;
   },
 
   /**

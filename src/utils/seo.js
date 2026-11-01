@@ -5,6 +5,8 @@
  * Twitter Cards, structured data (JSON-LD), and other SEO elements.
  */
 
+import { escapeHtml, serializeForScript } from "./escape.js";
+
 /**
  * Default SEO configuration
  */
@@ -44,7 +46,7 @@ export function generateMetaTags(options = {}) {
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="${escapeHtml(description)}">
   <meta name="keywords" content="${escapeHtml(keywords)}">
-  <meta name="robots" content="${robots}">
+  <meta name="robots" content="${escapeHtml(robots)}">
   <meta name="author" content="${escapeHtml(author)}">
   <meta name="theme-color" content="#1a73e8">
   ${canonical ? `<link rel="canonical" href="${escapeHtml(canonical)}">` : ''}`;
@@ -77,7 +79,7 @@ export function generateOpenGraphTags(options = {}) {
     : `${DEFAULT_SEO_CONFIG.siteUrl}${image}`;
 
   return `
-  <meta property="og:type" content="${type}">
+  <meta property="og:type" content="${escapeHtml(type)}">
   <meta property="og:title" content="${escapeHtml(title)}">
   <meta property="og:description" content="${escapeHtml(description)}">
   <meta property="og:image" content="${escapeHtml(absoluteImageUrl)}">
@@ -110,7 +112,7 @@ export function generateTwitterCardTags(options = {}) {
     : `${DEFAULT_SEO_CONFIG.siteUrl}${image}`;
 
   return `
-  <meta name="twitter:card" content="${card}">
+  <meta name="twitter:card" content="${escapeHtml(card)}">
   <meta name="twitter:title" content="${escapeHtml(title)}">
   <meta name="twitter:description" content="${escapeHtml(description)}">
   <meta name="twitter:image" content="${escapeHtml(absoluteImageUrl)}">
@@ -149,7 +151,7 @@ export function generateWebApplicationSchema(options = {}) {
     }
   };
 
-  return `<script type="application/ld+json">${JSON.stringify(schema, null, 2)}</script>`;
+  return `<script type="application/ld+json">${serializeForScript(schema, 2)}</script>`;
 }
 
 /**
@@ -210,7 +212,7 @@ export function generateSoftwareApplicationSchema(options = {}) {
     };
   }
 
-  return `<script type="application/ld+json">${JSON.stringify(schema, null, 2)}</script>`;
+  return `<script type="application/ld+json">${serializeForScript(schema, 2)}</script>`;
 }
 
 /**
@@ -228,7 +230,7 @@ export function generateOrganizationSchema() {
     "sameAs": []
   };
 
-  return `<script type="application/ld+json">${JSON.stringify(schema, null, 2)}</script>`;
+  return `<script type="application/ld+json">${serializeForScript(schema, 2)}</script>`;
 }
 
 /**
@@ -252,7 +254,7 @@ export function generateWebSiteSchema() {
     }
   };
 
-  return `<script type="application/ld+json">${JSON.stringify(schema, null, 2)}</script>`;
+  return `<script type="application/ld+json">${serializeForScript(schema, 2)}</script>`;
 }
 
 /**
@@ -278,7 +280,7 @@ export function generateBreadcrumbSchema(breadcrumbs = []) {
     "itemListElement": itemListElement
   };
 
-  return `<script type="application/ld+json">${JSON.stringify(schema, null, 2)}</script>`;
+  return `<script type="application/ld+json">${serializeForScript(schema, 2)}</script>`;
 }
 
 /**
@@ -332,25 +334,6 @@ export function generateCompleteSEO(options = {}) {
 ${generateOpenGraphTags({ title, description, image, url, type })}
 ${generateTwitterCardTags({ title, description, image })}
 ${structuredData}`;
-}
-
-/**
- * Escapes HTML special characters to prevent XSS
- * @param {string} text - Text to escape
- * @returns {string} Escaped text
- */
-function escapeHtml(text) {
-  if (!text) return '';
-
-  const map = {
-    '&': '&amp;',
-    '<': '&lt;',
-    '>': '&gt;',
-    '"': '&quot;',
-    "'": '&#039;'
-  };
-
-  return text.toString().replace(/[&<>"']/g, (char) => map[char]);
 }
 
 /**
