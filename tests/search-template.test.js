@@ -37,6 +37,6 @@ describe("Search template", () => {
       "<title>Search: &lt;/script&gt;&lt;script&gt;alert(document.domain)&lt;/script&gt; | Chrome Web Store Mirror</title>",
     );
     // Only the page script and JSON-LD block should open script elements.
-    expect(html.match(/<script[\s>]/g)).toHaveLength(2);
+    expect(html.split("<script").length - 1).toBe(2);
   });
 });
