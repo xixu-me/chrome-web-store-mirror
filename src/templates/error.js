@@ -5,6 +5,7 @@
  */
 
 import { getPageTemplate, htmlElements } from "./base.js";
+import { escapeHtml } from "../utils/escape.js";
 
 /**
  * Generates a 404 error page with proper SEO configuration
@@ -25,7 +26,7 @@ export function get404PageTemplate(requestedPath = '', currentUrl = '') {
         Sorry, the page you are looking for could not be found. It might have been moved, deleted, or you entered the wrong URL.
       </p>
 
-      ${requestedPath ? `<div class="error-path">${requestedPath}</div>` : ''}
+      ${requestedPath ? `<div class="error-path">${escapeHtml(requestedPath)}</div>` : ''}
 
       <div class="actions">
         ${htmlElements.button('🏠 Go to Home', '/', 'primary')}
@@ -63,13 +64,13 @@ export function getErrorPageTemplate(statusCode = 500, statusText = 'Internal Se
     <div style="text-align: center;">
       <div class="error-icon" aria-hidden="true">⚠️</div>
 
-      <h2 class="error-code">${statusCode}</h2>
+      <h2 class="error-code">${escapeHtml(statusCode)}</h2>
 
-      <h3 class="error-title">${statusText}</h3>
+      <h3 class="error-title">${escapeHtml(statusText)}</h3>
 
-      ${message ? `<p class="error-description">${message}</p>` : ''}
+      ${message ? `<p class="error-description">${escapeHtml(message)}</p>` : ''}
 
-      ${details ? `<div class="error-path">${details}</div>` : ''}
+      ${details ? `<div class="error-path">${escapeHtml(details)}</div>` : ''}
 
       <div class="actions">
         ${htmlElements.button('🏠 Go to Home', '/', 'primary')}

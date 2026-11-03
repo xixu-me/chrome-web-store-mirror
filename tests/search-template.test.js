@@ -19,4 +19,24 @@ describe("Search template", () => {
     expect(html).not.toContain("JSON.stringify");
     expect(html).not.toContain("const items = [");
   });
+
+  it("does not let the search query break out of the inline script or title", () => {
+    const payload = "</script><script>alert(document.domain)</script>";
+    const html = getSearchPageTemplate(
+      payload,
+      100,
+      "https://example.com/search",
+    );
+
+    expect(html).not.toContain(payload);
+    expect(html).not.toContain("<script>alert(document.domain)");
+    expect(html).toContain(
+      'const initialQuery = "\\u003C/script\\u003E\\u003Cscript\\u003Ealert(document.domain)\\u003C/script\\u003E";',
+    );
+    expect(html).toContain(
+      "<title>Search: &lt;/script&gt;&lt;script&gt;alert(document.domain)&lt;/script&gt; | Chrome Web Store Mirror</title>",
+    );
+    // Only the page script and JSON-LD block should open script elements.
+    expect(html.split("<script").length - 1).toBe(2);
+  });
 });
