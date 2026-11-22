@@ -3,7 +3,7 @@
   "devDependencies": {
     "eslint": "^10.14.0",
     "prettier": "^3.10.1",
-    "vitest": "^5.1.0",
+    "vitest": "^5.1.1",
     "wrangler": "^4.161.0",
     "brace-expansion": "^5.0.12",
     "@eslint/js": "^10.0.1",
